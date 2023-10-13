@@ -8,8 +8,8 @@ import {
   Stack,
 } from "@mui/material";
 import Input from "@mui/material/Input";
-import IconButton from "@mui/material/IconButton";
-import FileUploadOutlinedIcon from "@mui/icons-material/FileUploadOutlined";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 import axios from "axios";
 import * as React from "react";
@@ -21,28 +21,135 @@ export default function TweetWithMediaAndReply() {
     setSelectedFile(event.target.files[0]);
   };
 
-  const handleSubmit = (event: any) => {
+  const handleSubmit = async (event: any) => {
+    const toastId = toast.loading("Enviando tweet...");
     event.preventDefault();
-    // Do something with the selected file (e.g., upload it to a server)
-    if (selectedFile) {
-      const formData = new FormData();
-      formData.append("file", selectedFile);
+
+    const inText = event.target.text.value;
+    const inReply = event.target.reply.value;
+
+    if (!inText && !selectedFile) {
+      toast.update(toastId, {
+        render:
+          "É necessário preencher um texto ou selecionar um arquivo de mídia",
+        type: "error",
+        isLoading: false,
+        autoClose: 3000,
+        closeOnClick: true,
+        pauseOnHover: false,
+      });
+      return;
+    }
+
+    const missingFields = [];
+
+    if (!inText) {
+      missingFields.push("texto");
+    }
+
+    if (!selectedFile) {
+      missingFields.push("arquivo de mídia");
+    }
+
+    if (!inReply) {
+      missingFields.push("comentário");
+    }
+
+    if (missingFields.length > 0) {
+      const confirm = window.confirm(
+        `Tem certeza que deseja enviar sem os campos: ${missingFields.join(
+          " e "
+        )}?`
+      );
+
+      if (!confirm) {
+        toast.update(toastId, {
+          render: "Tweet não enviado",
+          type: "info",
+          isLoading: false,
+          autoClose: 3000,
+          closeOnClick: true,
+          pauseOnHover: false,
+        });
+        return;
+      }
+    }
+
+    if (inText.length > 280) {
+      toast.update(toastId, {
+        render: "Texto principal excedeu o limite de 280 caracteres",
+        type: "error",
+        isLoading: false,
+        autoClose: 3000,
+        closeOnClick: true,
+        pauseOnHover: false,
+      });
+      return;
+    }
+
+    if (inReply.length > 280) {
+      toast.update(toastId, {
+        render: "Comentário excedeu o limite de 280 caracteres",
+        type: "error",
+        isLoading: false,
+        autoClose: 3000,
+        closeOnClick: true,
+        pauseOnHover: false,
+      });
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("text", inText);
+    formData.append("reply", inReply);
+    formData.append("media", selectedFile as Blob);
+
+    try {
+      const res = await axios.post("/api/tweet", formData);
+      console.log(res.data);
+      toast.update(toastId, {
+        render: "Tweet enviado com sucesso",
+        type: "success",
+        isLoading: false,
+        autoClose: 5000,
+        closeOnClick: true,
+        pauseOnHover: false,
+      });
+    } catch (err: any) {
+      console.log(err);
+
+      let message = "Erro ao enviar tweet";
+
+      if (err.response && err.response.status) {
+        if (err.response.status === 429) {
+          message = "Limite de requisições excedido";
+        }
+        if (err.response.status === 401) {
+          message = "Erro de autenticação";
+        }
+        if (err.response.status === 590) {
+          message = "Tamanho do texto excedido";
+        }
+        if (err.response.status === 591) {
+          message = "Arquivo de mídia não suportado (talvez seja muito grande)";
+        }
+      }
+
+      toast.update(toastId, {
+        render: message,
+        type: "error",
+        isLoading: false,
+        autoClose: 5000,
+        closeOnClick: true,
+        pauseOnHover: false,
+      });
     }
   };
-
-  /*const inText = event.target.text.value;
-    const inReply = event.target.reply.value;
-    console.log(inText, inReply);
-    const res = await axios.post("/api/tweet-with-media-and-reply", {
-      text: inText,
-      reply: inReply,
-    });
-    console.log(res.data);*/
 
   return (
     <Stack gap={1}>
       <Typography variant="h5">
-        Faça um tweet com uma media e um comentário
+        Faça um tweet com um arquivo de mídia e um comentário
       </Typography>
       <FormControl
         component={"form"}
@@ -50,9 +157,7 @@ export default function TweetWithMediaAndReply() {
         sx={{
           display: "flex",
           flexDirection: "column",
-          justifyContent: "space-between",
           alignItems: "flex-start",
-          maxWidth: 600,
           gap: 2,
         }}
       >
@@ -65,18 +170,7 @@ export default function TweetWithMediaAndReply() {
           rows={4}
         />
 
-        {/*<Input
-          type="file"
-          id="file"
-          inputProps={{ style: { display: "none" } }}
-          onChange={(event) => setSelectedFile(event.target.files?.item(0))}
-          endAdornment={
-            <IconButton component="label">
-              <FileUploadOutlinedIcon />
-            </IconButton>
-          }
-        />*/}
-        <input type="file" onChange={handleFileChange} />
+        <Input type="file" onChange={handleFileChange} />
 
         <TextField
           id="reply"
@@ -90,6 +184,7 @@ export default function TweetWithMediaAndReply() {
           Enviar
         </Button>
       </FormControl>
+      <ToastContainer />
     </Stack>
   );
 }
