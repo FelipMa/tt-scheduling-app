@@ -14,7 +14,13 @@ export default function GetAccoutInfo() {
     const toastId = toast.loading("Buscando informações da conta...");
     try {
       const res = await axios.get("/api/me");
-      console.log(res.data);
+      /*console.log(res.data);
+      console.log(res.data.data);
+      console.log(res.data.data.name);
+      console.log(res.data.data.username);*/
+      setAccountName(res.data.data.name);
+      setAccountUsername(res.data.data.username);
+
       toast.update(toastId, {
         render: "Informações buscadas com sucesso",
         type: "success",
@@ -49,7 +55,7 @@ export default function GetAccoutInfo() {
   };
 
   return (
-    <Stack gap={1} alignItems={"flex-start"}>
+    <Stack gap={2} alignItems={"flex-start"}>
       <Typography variant="h5">Informações da conta</Typography>
       <Typography>Nome: {accountName}</Typography>
       <Typography>Nome de usuário: {accountUsername}</Typography>

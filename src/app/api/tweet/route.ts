@@ -3,7 +3,7 @@ import postTweet from "@/services/postTweet";
 
 export async function POST(request: Request) {
   try {
-    console.log("GET /api/tweet");
+    console.log("POST /api/tweet");
 
     const data = await request.formData();
     const text = data.get("text") as string;
@@ -32,7 +32,6 @@ export async function POST(request: Request) {
     }
 
     if (response === 591) {
-      console.log("Failed to process media2");
       return NextResponse.json(
         { message: "Failed to process media" },
         { status: 591 }

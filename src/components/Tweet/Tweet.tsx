@@ -10,11 +10,10 @@ import {
 import Input from "@mui/material/Input";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-
 import axios from "axios";
 import * as React from "react";
 
-export default function TweetWithMediaAndReply() {
+export default function ScheduleTweet() {
   const [selectedFile, setSelectedFile] = React.useState<File>();
 
   const handleFileChange = (event: any) => {
@@ -106,7 +105,6 @@ export default function TweetWithMediaAndReply() {
 
     try {
       const res = await axios.post("/api/tweet", formData);
-      console.log(res.data);
       toast.update(toastId, {
         render: "Tweet enviado com sucesso",
         type: "success",
@@ -147,7 +145,7 @@ export default function TweetWithMediaAndReply() {
   };
 
   return (
-    <Stack gap={1}>
+    <Stack gap={2}>
       <Typography variant="h5">
         Faça um tweet com um arquivo de mídia e um comentário
       </Typography>
