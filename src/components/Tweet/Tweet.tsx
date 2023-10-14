@@ -114,8 +114,6 @@ export default function ScheduleTweet() {
         pauseOnHover: false,
       });
     } catch (err: any) {
-      console.log(err);
-
       let message = "Erro ao enviar tweet";
 
       if (err.response && err.response.status) {

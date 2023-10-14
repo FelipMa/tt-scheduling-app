@@ -2,11 +2,43 @@ import dayjs from "dayjs";
 import { NextResponse } from "next/server";
 import postTweet from "@/services/postTweet";
 import schedulings from "@/utils/schedulings";
+import Schedule from "@/utils/Schedule";
+import credentials from "@/utils/credentials";
+import { generateTwitterClient } from "@/utils/userClient";
+import { TwitterApiReadWrite } from "twitter-api-v2";
 
 export async function POST(request: Request) {
-  function runSchedule(time: any) {
-    console.log(`Agendamento executado em ${time}`);
-    schedulings.push(time);
+  async function runSchedule(
+    targetDate: string,
+    text: string,
+    reply: string,
+    media: string | File,
+    schedule: Schedule,
+    userClient: TwitterApiReadWrite
+  ) {
+    try {
+      const response = await postTweet(text, reply, media, userClient);
+
+      if (response === 429) {
+        schedule.status = "Limite de requisições excedido";
+      } else if (response === 401) {
+        schedule.status = "Erro de autenticação";
+      } else if (response === 590) {
+        schedule.status = "Texto muito longo";
+      } else if (response === 591) {
+        schedule.status =
+          "Arquivo de mídia não suportado (provavelmente é muito pesado)";
+      } else if (response === undefined) {
+        schedule.status = "Erro ao postar tweet";
+      } else {
+        schedule.status = "Tweet postado";
+      }
+    } catch (error) {
+      console.log(error);
+      schedule.status = "Erro ao postar tweet";
+    }
+
+    console.log(`Agendamento executado em ${targetDate}`);
   }
   try {
     console.log("POST /api/tweet");
@@ -28,8 +60,34 @@ export async function POST(request: Request) {
       "YYYY-MM-DD HH:mm:ss"
     );
 
+    let textName = "Sem texto";
+    if (text) {
+      textName = text;
+    }
+
+    let mediaName = "Sem mídia";
+    if (typeof media !== "string") {
+      mediaName = media.name;
+    }
+
+    let replyName = "Sem comentário";
+    if (reply) {
+      replyName = reply;
+    }
+
+    const schedule = new Schedule(
+      targetDate,
+      textName,
+      replyName,
+      mediaName,
+      credentials.accountUsername
+    );
+    schedulings.push(schedule);
+
+    const userClient = generateTwitterClient();
+
     setTimeout(() => {
-      runSchedule(targetDate);
+      runSchedule(targetDate, text, reply, media, schedule, userClient);
     }, timeUntilTargetMs);
 
     const response = {
@@ -40,6 +98,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json(response, { status: 200 });
   } catch (error) {
+    console.log(error);
     return NextResponse.json(
       { message: "Internal Server Error" },
       { status: 500 }

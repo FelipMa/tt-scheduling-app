@@ -165,9 +165,7 @@ export default function ScheduleTweet() {
         pauseOnHover: false,
       });
     } catch (err: any) {
-      console.log(err);
-
-      const message = "erro";
+      const message = "Erro ao agendar tweet";
 
       toast.update(toastId, {
         render: message,
@@ -183,7 +181,7 @@ export default function ScheduleTweet() {
   return (
     <Stack gap={2}>
       <Typography variant="h5">
-        Faça o agendamento de um tweet com um arquivo de mídia e/ou comentário
+        Faça o agendamento de um tweet com um arquivo de mídia e/ou comentário:
       </Typography>
       <FormControl
         component={"form"}
@@ -204,7 +202,24 @@ export default function ScheduleTweet() {
           rows={4}
         />
 
-        <Input type="file" onChange={handleFileChange} />
+        <Stack component="label" htmlFor="media" gap={1}>
+          <Button
+            variant="contained"
+            component="span"
+            color="inherit"
+            sx={{ maxWidth: 250, textTransform: "none" }}
+          >
+            Selecionar arquivo de mídia
+          </Button>
+          <Typography>Arquivo selecionado: {selectedFile?.name}</Typography>
+        </Stack>
+
+        <Input
+          type="file"
+          id="media"
+          onChange={handleFileChange}
+          style={{ display: "none" }}
+        />
 
         <TextField
           id="reply"

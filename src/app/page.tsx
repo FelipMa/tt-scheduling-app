@@ -2,6 +2,7 @@ import { Stack } from "@mui/material";
 import GetAccountInfo from "@/components/GetAccoutInfo/GetAccountInfo";
 import ScheduleTweet from "@/components/ScheduleTweet/ScheduleTweet";
 import Schedulings from "@/components/Schedulings/Schedulings";
+import Login from "@/components/Login/Login";
 
 export default function Home() {
   return (

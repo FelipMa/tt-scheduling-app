@@ -1,13 +1,12 @@
-import { twitterClient } from "@/utils/userClient";
+import { generateTwitterClient } from "@/utils/userClient";
 
 export default async function getMe() {
   try {
+    const twitterClient = generateTwitterClient();
     const user = await twitterClient.v2.me();
 
     return user;
   } catch (error: any) {
-    console.log(error);
-
     if (error.code) {
       if (error.code === 429) {
         return 429;
@@ -16,6 +15,12 @@ export default async function getMe() {
         return 401;
       }
     }
+
+    if ((error + "a").includes("Invalid consumer tokens")) {
+      return 401;
+    }
+
+    console.log(error);
     return undefined;
   }
 }

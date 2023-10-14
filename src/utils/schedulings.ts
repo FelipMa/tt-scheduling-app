@@ -1,4 +1,5 @@
-const schedulings: any[] = [];
-schedulings.push("teste");
+import Schedule from "./Schedule";
+
+const schedulings: Schedule[] = [];
 
 export default schedulings;

@@ -1,10 +1,11 @@
-import { twitterClient } from "@/utils/userClient";
+import { TwitterApiReadWrite } from "twitter-api-v2";
 import { fileTypeFromBuffer } from "file-type";
 
 export default async function postTweet(
   inText: string,
   inReply: string,
-  inMedia: File | string
+  inMedia: File | string,
+  twitterClient: TwitterApiReadWrite
 ) {
   try {
     let tweet;
@@ -50,8 +51,6 @@ export default async function postTweet(
 
     return tweet;
   } catch (error: any) {
-    console.log(error);
-
     if (error.code) {
       if (error.code === 429) {
         return 429;
@@ -69,6 +68,7 @@ export default async function postTweet(
       return 591;
     }
 
+    console.log(error);
     return undefined;
   }
 }

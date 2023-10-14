@@ -22,7 +22,7 @@ export default function GetAccoutInfo() {
       setAccountUsername(res.data.data.username);
 
       toast.update(toastId, {
-        render: "Informações buscadas com sucesso",
+        render: "Informações da conta atual buscadas com sucesso",
         type: "success",
         isLoading: false,
         autoClose: 3000,
@@ -30,8 +30,6 @@ export default function GetAccoutInfo() {
         pauseOnHover: false,
       });
     } catch (err: any) {
-      console.log(err);
-
       let message = "Erro ao buscar informações";
 
       if (err.response && err.response.status) {
@@ -39,7 +37,8 @@ export default function GetAccoutInfo() {
           message = "Limite de requisições excedido";
         }
         if (err.response.status === 401) {
-          message = "Erro de autenticação";
+          message =
+            "Erro de autenticação ao buscar informações da conta (provavelmente não há credenciais cadastradas no momento)";
         }
       }
 
@@ -54,9 +53,13 @@ export default function GetAccoutInfo() {
     }
   };
 
+  /*React.useEffect(() => {
+    getMe();
+  }, []);*/
+
   return (
     <Stack gap={2} alignItems={"flex-start"}>
-      <Typography variant="h5">Informações da conta</Typography>
+      <Typography variant="h5">Informações da conta atual:</Typography>
       <Typography>Nome: {accountName}</Typography>
       <Typography>Nome de usuário: {accountUsername}</Typography>
       <Button variant="contained" onClick={getMe}>
