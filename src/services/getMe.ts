@@ -1,8 +1,7 @@
-import { generateTwitterClient } from "@/utils/userClient";
+import { TwitterApiReadWrite } from "twitter-api-v2";
 
-export default async function getMe() {
+export default async function getMe(twitterClient: TwitterApiReadWrite) {
   try {
-    const twitterClient = generateTwitterClient();
     const user = await twitterClient.v2.me();
 
     return user;
@@ -14,10 +13,6 @@ export default async function getMe() {
       if (error.code === 401) {
         return 401;
       }
-    }
-
-    if ((error + "a").includes("Invalid consumer tokens")) {
-      return 401;
     }
 
     console.log(error);

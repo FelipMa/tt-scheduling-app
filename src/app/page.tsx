@@ -4,7 +4,6 @@ import { Stack } from "@mui/material";
 import GetAccountInfo from "@/components/GetAccoutInfo/GetAccountInfo";
 import ScheduleTweet from "@/components/ScheduleTweet/ScheduleTweet";
 import Schedulings from "@/components/Schedulings/Schedulings";
-import { generateTwitterClient } from "@/utils/userClient";
 import * as React from "react";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -13,14 +12,7 @@ import { TwitterApiReadWrite } from "twitter-api-v2";
 import Login from "@/components/Login/Login";
 
 export default function Home() {
-  const initialClient = generateTwitterClient(
-    "appKey",
-    "appSecret",
-    "accessToken",
-    "accessSecret"
-  );
-  const [client, setClient] =
-    React.useState<TwitterApiReadWrite>(initialClient);
+  const [client, setClient] = React.useState<TwitterApiReadWrite>();
 
   const [accountName, setAccountName] = React.useState<string>("...");
   const [accountUsername, setAccountUsername] = React.useState<string>("...");
@@ -34,23 +26,44 @@ export default function Home() {
     const newAccessToken = event.target.accessToken.value;
     const newAccessSecret = event.target.accessSecret.value;
 
-    setClient(
-      generateTwitterClient(
-        newAppKey,
-        newAppSecret,
-        newAccessToken,
-        newAccessSecret
-      )
-    );
+    if (
+      !newAppKey ||
+      !newAppSecret ||
+      !newAccessToken ||
+      !newAccessSecret ||
+      newAppKey === "" ||
+      newAppSecret === "" ||
+      newAccessToken === "" ||
+      newAccessSecret === ""
+    ) {
+      toast.update(toastId, {
+        render: "Preencha todas as credenciais de autenticação",
+        type: "error",
+        isLoading: false,
+        autoClose: 3000,
+        closeOnClick: true,
+        pauseOnHover: false,
+      });
+      return;
+    }
 
     try {
-      const response = await axios.get("/api/me");
+      const res = await axios.post("/api/login", {
+        appKey: newAppKey,
+        appSecret: newAppSecret,
+        accessToken: newAccessToken,
+        accessSecret: newAccessSecret,
+      });
 
-      setAccountName(response.data.data.name);
-      setAccountUsername(response.data.data.username);
+      const newClient = res.data.twitterClient;
+      const userData = res.data.userData;
+
+      setClient(newClient);
+      setAccountName(userData.data.name);
+      setAccountUsername(userData.data.username);
 
       toast.update(toastId, {
-        render: "Credenciais atualizadas com sucesso",
+        render: `Usuário ${accountName} - ${accountUsername} autenticado com sucesso`,
         type: "success",
         isLoading: false,
         autoClose: 3000,
@@ -62,10 +75,12 @@ export default function Home() {
 
       if (err.response && err.response.status) {
         if (err.response.status === 429) {
-          message = "Limite de requisições excedido";
+          message =
+            "Usuário identificado, mas não foi possível buscar seus dados pelo limite de requisições excedido";
         }
         if (err.response.status === 401) {
-          message = "Erro de autenticação ao buscar informações da conta";
+          message =
+            "Erro de autenticação ao buscar informações da conta, verifique as credenciais";
         }
       }
 
@@ -77,13 +92,14 @@ export default function Home() {
         closeOnClick: true,
         pauseOnHover: false,
       });
+      return;
     }
   };
 
   return (
     <Stack component={"main"} padding={6} gap={7} maxWidth={700}>
       <Login handleLogin={handleLogin} />
-      <GetAccountInfo />
+      <GetAccountInfo client={client} />
       <ScheduleTweet />
       <Schedulings />
     </Stack>

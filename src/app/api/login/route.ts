@@ -1,6 +1,6 @@
 import getMe from "@/services/getMe";
-import credentials from "@/utils/credentials";
 import { NextResponse } from "next/server";
+import { generateTwitterClient } from "@/utils/userClient";
 
 export async function POST(request: Request) {
   try {
@@ -12,33 +12,36 @@ export async function POST(request: Request) {
     const accessToken = body.accessToken;
     const accessSecret = body.accessSecret;
 
-    credentials.appKey = appKey;
-    credentials.appSecret = appSecret;
-    credentials.accessToken = accessToken;
-    credentials.accessSecret = accessSecret;
+    const twitterClient = generateTwitterClient(
+      appKey,
+      appSecret,
+      accessToken,
+      accessSecret
+    );
 
-    const response = await getMe();
+    const userData = await getMe(twitterClient);
 
-    if (!response) {
+    if (!userData) {
       throw new Error("Internal Server Error");
     }
 
-    if (response === 429) {
+    if (userData === 429) {
       return NextResponse.json(
         { message: "Too Many Requests" },
         { status: 429 }
       );
     }
 
-    if (response === 401) {
+    if (userData === 401) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
-    credentials.accountUsername = response.data.username;
+    const response = {
+      twitterClient,
+      userData,
+    };
 
-    return NextResponse.json("Credenciais salvas com sucesso", {
-      status: 200,
-    });
+    return NextResponse.json(response, { status: 200 });
   } catch (error) {
     console.log(error);
     return NextResponse.json("Internal Server Error", {

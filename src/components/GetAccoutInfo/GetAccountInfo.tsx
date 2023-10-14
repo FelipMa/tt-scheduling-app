@@ -5,15 +5,21 @@ import axios from "axios";
 import * as React from "react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { TwitterApiReadWrite } from "twitter-api-v2";
 
-export default function GetAccoutInfo() {
+export default function GetAccoutInfo(props: {
+  client: TwitterApiReadWrite | undefined;
+}) {
   const [accountName, setAccountName] = React.useState<string>("...");
   const [accountUsername, setAccountUsername] = React.useState<string>("...");
 
   const getMe = async () => {
     const toastId = toast.loading("Buscando informações da conta...");
+    console.log(props.client);
     try {
-      const res = await axios.get("/api/me");
+      const res = await axios.post("/api/me", {
+        twitterClient: props.client,
+      });
       /*console.log(res.data);
       console.log(res.data.data);
       console.log(res.data.data.name);
@@ -52,10 +58,6 @@ export default function GetAccoutInfo() {
       });
     }
   };
-
-  /*React.useEffect(() => {
-    getMe();
-  }, []);*/
 
   return (
     <Stack gap={2} alignItems={"flex-start"}>

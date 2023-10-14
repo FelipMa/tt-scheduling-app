@@ -1,11 +1,14 @@
 import getMe from "@/services/getMe";
 import { NextResponse } from "next/server";
 
-export async function GET(request: Request) {
+export async function POST(request: Request) {
   try {
-    console.log("GET /api/me");
+    console.log("POST /api/me");
 
-    const response = await getMe();
+    const body = await request.json();
+    const { twitterClient } = body;
+
+    const response = await getMe(twitterClient);
 
     if (!response) {
       throw new Error("Internal Server Error");
