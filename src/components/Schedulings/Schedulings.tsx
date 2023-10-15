@@ -1,14 +1,31 @@
 import { Stack, Typography } from "@mui/material";
-import schedulings from "@/utils/schedulings";
+import * as React from "react";
 
 export default function Schedulings() {
-  const reversedSchedulings = schedulings.slice().reverse();
+  const [schedulings, setSchedulings] = React.useState<any>([]);
+
+  React.useEffect(() => {
+    const fetchSchedulings = async () => {
+      const response = await fetch("/api/schedulings");
+      const data = await response.json();
+      const reversedData = data.reverse();
+      setSchedulings(reversedData);
+    };
+
+    fetchSchedulings();
+  }, []);
+
   return (
     <Stack gap={1} alignItems={"flex-start"}>
       <Typography variant="h5">Últimos agendamentos:</Typography>
-      {reversedSchedulings.map((scheduling) => (
+      <Typography>
+        Agendamentos são salvos em um banco sqlite;
+        <br />A listagem só é atualizada ao recarregar a página.
+      </Typography>
+      {schedulings.map((scheduling: any) => (
         <Stack
           key={scheduling.targetDate}
+          flexDirection={"column"}
           sx={{
             border: "1px solid",
             borderColor: "primary.main",
@@ -19,27 +36,15 @@ export default function Schedulings() {
           }}
         >
           <Typography>
+            <b>Usuário:</b> {scheduling.accountUsername}
+          </Typography>
+
+          <Typography>
             <b>Horário:</b> {scheduling.targetDate}
           </Typography>
 
           <Typography>
-            <b>Texto:</b> {scheduling.text}
-          </Typography>
-
-          <Typography>
-            <b>Mídia:</b> {scheduling.media}
-          </Typography>
-
-          <Typography>
-            <b>Comentário:</b> {scheduling.reply}
-          </Typography>
-
-          <Typography>
             <b>Status:</b> {scheduling.status}
-          </Typography>
-
-          <Typography>
-            <b>User:</b> {scheduling.accountUsername}
           </Typography>
         </Stack>
       ))}

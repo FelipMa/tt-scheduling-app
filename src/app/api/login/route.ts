@@ -1,51 +1,44 @@
 import getMe from "@/services/getMe";
 import { NextResponse } from "next/server";
-import { generateTwitterClient } from "@/utils/userClient";
 
 export async function POST(request: Request) {
   try {
-    console.log("POST /api/login");
+    console.log("POST /api/me");
 
     const body = await request.json();
-    const appKey = body.appKey;
-    const appSecret = body.appSecret;
-    const accessToken = body.accessToken;
-    const accessSecret = body.accessSecret;
+    const { appKey, appSecret, accessToken, accessSecret } = body;
 
-    const twitterClient = generateTwitterClient(
-      appKey,
-      appSecret,
-      accessToken,
-      accessSecret
-    );
+    const response = await getMe(appKey, appSecret, accessToken, accessSecret);
 
-    const userData = await getMe(twitterClient);
-
-    if (!userData) {
+    if (!response) {
       throw new Error("Internal Server Error");
     }
 
-    if (userData === 429) {
+    if (response === 429) {
+      throw new Error("Too Many Requests");
+    }
+
+    if (response === 401) {
+      throw new Error("Unauthorized");
+    }
+
+    return NextResponse.json(response, { status: 200 });
+  } catch (error: any) {
+    if (error.message === "Too Many Requests") {
       return NextResponse.json(
         { message: "Too Many Requests" },
         { status: 429 }
       );
     }
 
-    if (userData === 401) {
+    if (error.message === "Unauthorized") {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
-    const response = {
-      twitterClient,
-      userData,
-    };
-
-    return NextResponse.json(response, { status: 200 });
-  } catch (error) {
     console.log(error);
-    return NextResponse.json("Internal Server Error", {
-      status: 500,
-    });
+    return NextResponse.json(
+      { message: "Internal Server Error" },
+      { status: 500 }
+    );
   }
 }

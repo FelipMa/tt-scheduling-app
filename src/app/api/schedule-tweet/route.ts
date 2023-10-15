@@ -1,11 +1,7 @@
 import dayjs from "dayjs";
 import { NextResponse } from "next/server";
 import postTweet from "@/services/postTweet";
-import schedulings from "@/utils/schedulings";
-import Schedule from "@/utils/Schedule";
-import credentials from "@/utils/credentials";
-import { generateTwitterClient } from "@/utils/userClient";
-import { TwitterApiReadWrite } from "twitter-api-v2";
+import prisma from "@/lib/prisma";
 
 export async function POST(request: Request) {
   async function runSchedule(
@@ -13,41 +9,77 @@ export async function POST(request: Request) {
     text: string,
     reply: string,
     media: string | File,
-    schedule: Schedule,
-    userClient: TwitterApiReadWrite
+    scheduleId: number,
+    appKey: string,
+    appSecret: string,
+    accessToken: string,
+    accessSecret: string
   ) {
     try {
-      const response = await postTweet(text, reply, media, userClient);
+      const response = await postTweet(
+        text,
+        reply,
+        media,
+        appKey,
+        appSecret,
+        accessToken,
+        accessSecret
+      );
+
+      let newStatus;
 
       if (response === 429) {
-        schedule.status = "Limite de requisições excedido";
+        newStatus = "Limite de requisições excedido";
       } else if (response === 401) {
-        schedule.status = "Erro de autenticação";
+        newStatus = "Erro de autenticação";
       } else if (response === 590) {
-        schedule.status = "Texto muito longo";
+        newStatus = "Texto muito longo";
       } else if (response === 591) {
-        schedule.status =
+        newStatus =
           "Arquivo de mídia não suportado (provavelmente é muito pesado)";
       } else if (response === undefined) {
-        schedule.status = "Erro ao postar tweet";
+        newStatus = "Erro ao postar tweet";
       } else {
-        schedule.status = "Tweet postado";
+        newStatus = "Tweet postado";
       }
+
+      await prisma.schedule.update({
+        where: {
+          id: scheduleId,
+        },
+        data: {
+          status: newStatus,
+        },
+      });
     } catch (error) {
       console.log(error);
-      schedule.status = "Erro ao postar tweet";
+      let newStatus = "Erro ao postar tweet";
+
+      await prisma.schedule.update({
+        where: {
+          id: scheduleId,
+        },
+        data: {
+          status: newStatus,
+        },
+      });
     }
 
     console.log(`Agendamento executado em ${targetDate}`);
   }
   try {
-    console.log("POST /api/tweet");
+    console.log("POST /api/schedule-tweet");
 
     const data = await request.formData();
     const text = data.get("text") as string;
     const reply = data.get("reply") as string;
     const media = data.get("media") as File | string;
     const unixString = data.get("unixTime") as string;
+    const appKey = data.get("appKey") as string;
+    const appSecret = data.get("appSecret") as string;
+    const accessToken = data.get("accessToken") as string;
+    const accessSecret = data.get("accessSecret") as string;
+    const accountUsername = data.get("accountUsername") as string;
 
     const now = dayjs(Date.now());
     const unixNow = now.unix();
@@ -57,7 +89,7 @@ export async function POST(request: Request) {
     const timeUntilTargetMs = timeUntilTarget * 1000;
 
     const targetDate = dayjs(targetUnixTime * 1000).format(
-      "YYYY-MM-DD HH:mm:ss"
+      "DD/MM/YYYY HH:mm:ss"
     );
 
     let textName = "Sem texto";
@@ -75,25 +107,33 @@ export async function POST(request: Request) {
       replyName = reply;
     }
 
-    const schedule = new Schedule(
-      targetDate,
-      textName,
-      replyName,
-      mediaName,
-      credentials.accountUsername
-    );
-    schedulings.push(schedule);
-
-    const userClient = generateTwitterClient();
+    const schedule = await prisma.schedule.create({
+      data: {
+        targetDate: targetDate,
+        text: textName,
+        reply: replyName,
+        media: mediaName,
+        accountUsername: accountUsername,
+        status: "Agendado",
+      },
+    });
 
     setTimeout(() => {
-      runSchedule(targetDate, text, reply, media, schedule, userClient);
+      runSchedule(
+        targetDate,
+        text,
+        reply,
+        media,
+        schedule.id,
+        appKey,
+        appSecret,
+        accessToken,
+        accessSecret
+      );
     }, timeUntilTargetMs);
 
     const response = {
-      message: `Tweet agendado para ${now
-        .add(timeUntilTarget, "second")
-        .format("YYYY-MM-DD HH:mm:ss")}`,
+      targetDate,
     };
 
     return NextResponse.json(response, { status: 200 });

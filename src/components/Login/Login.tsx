@@ -1,5 +1,3 @@
-"use client";
-
 import {
   Stack,
   Button,
@@ -8,14 +6,36 @@ import {
   FormControl,
 } from "@mui/material";
 import * as React from "react";
-import "react-toastify/dist/ReactToastify.css";
 
 export default function Login(props: {
   handleLogin: (event: any) => Promise<void>;
+  accountName: string;
+  accountUsername: string;
 }) {
   return (
     <Stack gap={2} alignItems={"flex-start"} width={"100%"}>
-      <Typography variant="h5">Atualizar credenciais:</Typography>
+      <Typography variant="h5">Informações da conta:</Typography>
+
+      <Typography>
+        {props.accountName
+          ? "Nome:" + props.accountName
+          : "Nenhum usuário autenticado"}
+      </Typography>
+
+      <Typography>
+        {props.accountUsername
+          ? "Nome de usuário:" + props.accountUsername
+          : ""}
+      </Typography>
+
+      <Typography variant="h5">Login:</Typography>
+
+      <Typography>
+        O login é realizado pelas credenciais de desenvolvedor do usuário;
+        <br />
+        As credenciais são armazenadas no navegador, ao recarregar a página será
+        necessário logar novamente.
+      </Typography>
 
       <FormControl
         component={"form"}
@@ -61,7 +81,7 @@ export default function Login(props: {
         />
 
         <Button variant="contained" type="submit">
-          Atualizar
+          Enviar
         </Button>
       </FormControl>
     </Stack>

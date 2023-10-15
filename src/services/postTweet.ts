@@ -1,14 +1,24 @@
-import { TwitterApiReadWrite } from "twitter-api-v2";
 import { fileTypeFromBuffer } from "file-type";
+import { generateTwitterClient } from "@/utils/userClient";
 
 export default async function postTweet(
   inText: string,
   inReply: string,
   inMedia: File | string,
-  twitterClient: TwitterApiReadWrite
+  appKey: string,
+  appSecret: string,
+  accessToken: string,
+  accessSecret: string
 ) {
   try {
     let tweet;
+
+    const twitterClient = generateTwitterClient(
+      appKey,
+      appSecret,
+      accessToken,
+      accessSecret
+    );
 
     if (typeof inMedia !== "string") {
       const bytes = await inMedia.arrayBuffer();

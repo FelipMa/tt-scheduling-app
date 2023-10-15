@@ -1,21 +1,32 @@
 "use client";
 
 import { Stack } from "@mui/material";
-import GetAccountInfo from "@/components/GetAccoutInfo/GetAccountInfo";
 import ScheduleTweet from "@/components/ScheduleTweet/ScheduleTweet";
 import Schedulings from "@/components/Schedulings/Schedulings";
 import * as React from "react";
-import { toast } from "react-toastify";
+import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import axios from "axios";
-import { TwitterApiReadWrite } from "twitter-api-v2";
 import Login from "@/components/Login/Login";
+interface ClientCredentials {
+  appKey: string;
+  appSecret: string;
+  accessToken: string;
+  accessSecret: string;
+}
 
 export default function Home() {
-  const [client, setClient] = React.useState<TwitterApiReadWrite>();
+  const initialClientCredentials = {
+    appKey: "",
+    appSecret: "",
+    accessToken: "",
+    accessSecret: "",
+  };
+  const [clientCredentials, setClientCredentials] =
+    React.useState<ClientCredentials>(initialClientCredentials);
 
-  const [accountName, setAccountName] = React.useState<string>("...");
-  const [accountUsername, setAccountUsername] = React.useState<string>("...");
+  const [accountName, setAccountName] = React.useState<string>("");
+  const [accountUsername, setAccountUsername] = React.useState<string>("");
 
   const handleLogin = async (event: any) => {
     const toastId = toast.loading("Atualizando credenciais...");
@@ -47,23 +58,26 @@ export default function Home() {
       return;
     }
 
+    const newClientCredentials = {
+      appKey: newAppKey,
+      appSecret: newAppSecret,
+      accessToken: newAccessToken,
+      accessSecret: newAccessSecret,
+    };
+
+    setClientCredentials(newClientCredentials);
+
     try {
-      const res = await axios.post("/api/login", {
-        appKey: newAppKey,
-        appSecret: newAppSecret,
-        accessToken: newAccessToken,
-        accessSecret: newAccessSecret,
-      });
+      const res = await axios.post("/api/login", newClientCredentials);
 
-      const newClient = res.data.twitterClient;
-      const userData = res.data.userData;
+      const name = res.data.data.name;
+      const username = res.data.data.username;
 
-      setClient(newClient);
-      setAccountName(userData.data.name);
-      setAccountUsername(userData.data.username);
+      setAccountName(name);
+      setAccountUsername(username);
 
       toast.update(toastId, {
-        render: `Usuário ${accountName} - ${accountUsername} autenticado com sucesso`,
+        render: `Usuário ${name} (${username}) autenticado com sucesso`,
         type: "success",
         isLoading: false,
         autoClose: 3000,
@@ -76,7 +90,7 @@ export default function Home() {
       if (err.response && err.response.status) {
         if (err.response.status === 429) {
           message =
-            "Usuário identificado, mas não foi possível buscar seus dados pelo limite de requisições excedido";
+            "Usuário identificado, mas não foi possível buscar seus dados pelo limite de requisições excedido (ainda pode ser possível agendar tweets)";
         }
         if (err.response.status === 401) {
           message =
@@ -97,11 +111,29 @@ export default function Home() {
   };
 
   return (
-    <Stack component={"main"} padding={6} gap={7} maxWidth={700}>
-      <Login handleLogin={handleLogin} />
-      <GetAccountInfo client={client} />
-      <ScheduleTweet />
-      <Schedulings />
-    </Stack>
+    <>
+      <Stack
+        component={"main"}
+        paddingY={3}
+        paddingX={6}
+        gap={7}
+        maxWidth={700}
+      >
+        <Login
+          handleLogin={handleLogin}
+          accountName={accountName}
+          accountUsername={accountUsername}
+        />
+
+        <ScheduleTweet
+          clientCredentials={clientCredentials}
+          accountName={accountName}
+          accountUsername={accountUsername}
+        />
+
+        <Schedulings />
+      </Stack>
+      <ToastContainer />
+    </>
   );
 }

@@ -1,5 +1,3 @@
-"use client";
-
 import {
   Button,
   TextField,
@@ -8,7 +6,7 @@ import {
   Stack,
 } from "@mui/material";
 import Input from "@mui/material/Input";
-import { ToastContainer, toast } from "react-toastify";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import axios from "axios";
 import * as React from "react";
@@ -17,23 +15,41 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 
-export default function ScheduleTweet() {
+interface ClientCredentials {
+  appKey: string;
+  appSecret: string;
+  accessToken: string;
+  accessSecret: string;
+}
+
+export default function ScheduleTweet(props: {
+  clientCredentials: ClientCredentials;
+  accountName: string;
+  accountUsername: string;
+}) {
   const [selectedFile, setSelectedFile] = React.useState<File>();
   const [selectedDate, setSelectedDate] = React.useState<Dayjs | null>(
     dayjs(Date.now())
   );
 
-  const handleFileChange = (event: any) => {
-    setSelectedFile(event.target.files[0]);
-  };
-
   const handleSubmit = async (event: any) => {
     const toastId = toast.loading("Agendando tweet...");
     event.preventDefault();
 
+    if (!props.accountName || !props.accountUsername) {
+      toast.update(toastId, {
+        render: "Nenhum usuário autenticado",
+        type: "error",
+        isLoading: false,
+        autoClose: 3000,
+        closeOnClick: true,
+        pauseOnHover: false,
+      });
+      return;
+    }
+
     const inText = event.target.text.value;
     const inReply = event.target.reply.value;
-    const unixTime = selectedDate?.unix();
 
     if (!inText && !selectedFile) {
       toast.update(toastId, {
@@ -106,6 +122,7 @@ export default function ScheduleTweet() {
       return;
     }
 
+    const unixTime = selectedDate?.unix();
     const now = dayjs(Date.now());
     const unixNow = now.unix();
 
@@ -152,12 +169,19 @@ export default function ScheduleTweet() {
     formData.append("reply", inReply);
     formData.append("media", selectedFile as Blob);
     formData.append("unixTime", unixTime as unknown as string);
+    formData.append("appKey", props.clientCredentials.appKey);
+    formData.append("appSecret", props.clientCredentials.appSecret);
+    formData.append("accessToken", props.clientCredentials.accessToken);
+    formData.append("accessSecret", props.clientCredentials.accessSecret);
+    formData.append("accountUsername", props.accountUsername);
 
     try {
       const res = await axios.post("/api/schedule-tweet", formData);
 
+      const message = `Tweet de ${props.accountName} agendado para ${res.data.targetDate}`;
+
       toast.update(toastId, {
-        render: `${res.data.message}`,
+        render: message,
         type: "success",
         isLoading: false,
         autoClose: 5000,
@@ -207,7 +231,7 @@ export default function ScheduleTweet() {
             variant="contained"
             component="span"
             color="inherit"
-            sx={{ maxWidth: 250, textTransform: "none" }}
+            sx={{ maxWidth: 208, textTransform: "none" }}
           >
             Selecionar arquivo de mídia
           </Button>
@@ -217,7 +241,7 @@ export default function ScheduleTweet() {
         <Input
           type="file"
           id="media"
-          onChange={handleFileChange}
+          onChange={(event: any) => setSelectedFile(event.target.files[0])}
           style={{ display: "none" }}
         />
 
@@ -242,7 +266,6 @@ export default function ScheduleTweet() {
           Enviar
         </Button>
       </FormControl>
-      <ToastContainer />
     </Stack>
   );
 }
