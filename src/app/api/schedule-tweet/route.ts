@@ -2,6 +2,8 @@ import dayjs from "dayjs";
 import { NextResponse } from "next/server";
 import postTweet from "@/services/postTweet";
 import prisma from "@/lib/prisma";
+import utc from "dayjs/plugin/utc";
+dayjs.extend(utc);
 
 export async function POST(request: Request) {
   async function runSchedule(
@@ -48,7 +50,7 @@ export async function POST(request: Request) {
         },
       });
     } catch (error) {
-      console.log(error);
+      console.error(error);
       let newStatus = "Erro ao postar tweet";
 
       await prisma.schedule.update({
@@ -62,9 +64,9 @@ export async function POST(request: Request) {
     }
 
     console.info(
-      `Programado para ${targetDate}, executado em ${dayjs().format(
-        "DD/MM/YYYY HH:mm:ss"
-      )}`
+      `Programado para ${targetDate}, executado em ${dayjs()
+        .locale("pt-br")
+        .format("DD/MM/YYYY HH:mm:ss:ssZ")}`
     );
   }
   try {
@@ -86,9 +88,9 @@ export async function POST(request: Request) {
     const timeUntilTarget = targetUnixTime - unixNow;
     const timeUntilTargetMs = timeUntilTarget * 1000;
 
-    const targetDate = dayjs(targetUnixTime * 1000).format(
-      "DD/MM/YYYY HH:mm:ss"
-    );
+    const targetDate = dayjs(targetUnixTime * 1000)
+      .locale("pt-br")
+      .format("DD/MM/YYYY HH:mm:ss:ssZ");
 
     let textName = "Sem texto";
     if (text) {

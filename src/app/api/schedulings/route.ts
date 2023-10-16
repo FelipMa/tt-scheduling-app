@@ -8,7 +8,7 @@ export async function GET(request: Request) {
 
     return NextResponse.json(schedulings, { status: 200 });
   } catch (err) {
-    console.log(err);
+    console.error(err);
     return NextResponse.json(
       {
         message: "Internal database error",
