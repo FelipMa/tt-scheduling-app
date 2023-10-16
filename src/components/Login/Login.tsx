@@ -15,7 +15,7 @@ export default function Login(props: {
 }) {
   return (
     <Stack gap={2} alignItems={"flex-start"} width={"100%"}>
-      <Typography variant="h5">Informações da conta:</Typography>
+      <Typography variant="h4">Informações da conta:</Typography>
 
       <Typography>
         {props.accountName

@@ -36,7 +36,7 @@ export default function ScheduleTweet(props: {
 
     if (!props.accountName || !props.accountUsername) {
       toast.update(toastId, {
-        render: "Nenhum usuário autenticado",
+        render: "Nenhum usuário autenticado, faça login para agendar tweets",
         type: "error",
         isLoading: false,
         autoClose: 3000,
@@ -200,7 +200,7 @@ export default function ScheduleTweet(props: {
 
   return (
     <Stack gap={2}>
-      <Typography variant="h5">
+      <Typography variant="h4">
         Faça o agendamento de um tweet com um arquivo de mídia e/ou comentário:
       </Typography>
       <FormControl
@@ -259,7 +259,7 @@ export default function ScheduleTweet(props: {
           />
         </LocalizationProvider>
         <Button variant="contained" type="submit">
-          Enviar
+          Agendar
         </Button>
       </FormControl>
     </Stack>

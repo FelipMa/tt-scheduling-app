@@ -1,8 +1,9 @@
-import { Stack, Typography } from "@mui/material";
+import { Button, Stack, Typography } from "@mui/material";
 import * as React from "react";
 
 export default function Schedulings() {
   const [schedulings, setSchedulings] = React.useState<any>([]);
+  const [cards, setCards] = React.useState<number>(5);
 
   React.useEffect(() => {
     const fetchSchedulings = async () => {
@@ -16,8 +17,8 @@ export default function Schedulings() {
   }, []);
 
   return (
-    <Stack gap={1} alignItems={"flex-start"}>
-      <Typography variant="h5">Últimos agendamentos:</Typography>
+    <Stack gap={2} alignItems={"flex-start"}>
+      <Typography variant="h4">Últimos agendamentos:</Typography>
       <Typography>
         Agendamentos são salvos em um banco sqlite;
         <br />A listagem só é atualizada ao recarregar a página.
@@ -25,7 +26,7 @@ export default function Schedulings() {
       {schedulings.length === 0 && (
         <Typography>Nenhum agendamento encontrado.</Typography>
       )}
-      {schedulings.map((scheduling: any, index: number) => (
+      {schedulings.slice(0, cards).map((scheduling: any, index: number) => (
         <Stack
           key={index}
           flexDirection={"column"}
@@ -43,7 +44,7 @@ export default function Schedulings() {
           </Typography>
 
           <Typography>
-            <b>Horário:</b> {scheduling.targetDate}
+            <b>Agendado para:</b> {scheduling.targetDate}
           </Typography>
 
           <Typography>
@@ -51,6 +52,14 @@ export default function Schedulings() {
           </Typography>
         </Stack>
       ))}
+      {schedulings.length > cards && (
+        <Button variant="contained" onClick={() => setCards(cards + 5)}>
+          Carregar mais
+        </Button>
+      )}
+      {schedulings.length <= cards && (
+        <Typography>Não há mais agendamentos.</Typography>
+      )}
     </Stack>
   );
 }
