@@ -2,9 +2,10 @@ import dayjs from "dayjs";
 import { NextResponse } from "next/server";
 import postTweet from "@/services/postTweet";
 import prisma from "@/lib/prisma";
+import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
+dayjs.extend(utc);
 dayjs.extend(timezone);
-dayjs.tz.setDefault("America/Sao_Paulo");
 
 export async function POST(request: Request) {
   async function runSchedule(
@@ -65,9 +66,9 @@ export async function POST(request: Request) {
     }
 
     console.info(
-      `Programado para ${targetDate}, executado em ${dayjs().format(
-        "DD/MM/YYYY HH:mm:ss [UTC]Z"
-      )}`
+      `Programado para ${targetDate}, executado em ${dayjs()
+        .tz("America/Bahia")
+        .format("DD/MM/YYYY HH:mm:ss [UTC]Z")}`
     );
   }
   try {
@@ -89,9 +90,9 @@ export async function POST(request: Request) {
     const timeUntilTarget = targetUnixTime - unixNow;
     const timeUntilTargetMs = timeUntilTarget * 1000;
 
-    const targetDate = dayjs(targetUnixTime * 1000).format(
-      "DD/MM/YYYY HH:mm:ss [UTC]Z"
-    );
+    const targetDate = dayjs(targetUnixTime * 1000)
+      .tz("America/Bahia")
+      .format("DD/MM/YYYY HH:mm:ss [UTC]Z");
 
     let textName = "Sem texto";
     if (text) {
