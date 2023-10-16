@@ -8,9 +8,10 @@ import {
 import * as React from "react";
 
 export default function Login(props: {
-  handleLogin: (event: any) => Promise<void>;
   accountName: string;
   accountUsername: string;
+  authUrl: string;
+  handlePin: (event: any) => void;
 }) {
   return (
     <Stack gap={2} alignItems={"flex-start"} width={"100%"}>
@@ -18,72 +19,47 @@ export default function Login(props: {
 
       <Typography>
         {props.accountName
-          ? "Nome:" + props.accountName
+          ? "Nome: " + props.accountName
           : "Nenhum usuário autenticado"}
       </Typography>
 
       <Typography>
         {props.accountUsername
-          ? "Nome de usuário:" + props.accountUsername
+          ? "Nome de usuário: " + props.accountUsername
           : ""}
       </Typography>
 
-      <Typography variant="h5">Login:</Typography>
-
-      <Typography>
-        O login é realizado pelas credenciais de desenvolvedor do usuário;
-        <br />
-        As credenciais são armazenadas no navegador, ao recarregar a página será
-        necessário logar novamente.
-      </Typography>
+      <Button variant="contained" href={props.authUrl} target="_blank">
+        Gerar Pin de login
+      </Button>
 
       <FormControl
         component={"form"}
-        onSubmit={props.handleLogin}
+        onSubmit={props.handlePin}
         sx={{
           display: "flex",
           flexDirection: "column",
           alignItems: "flex-start",
           gap: 2,
-          width: "100%",
         }}
       >
         <TextField
-          id="appKey"
-          label="App Key"
-          variant="outlined"
-          fullWidth
-          multiline
-        />
-
-        <TextField
-          id="appSecret"
-          label="App Secret"
-          variant="outlined"
-          fullWidth
-          multiline
-        />
-
-        <TextField
-          id="accessToken"
-          label="Access Token"
-          variant="outlined"
-          fullWidth
-          multiline
-        />
-
-        <TextField
-          id="accessSecret"
-          label="Access Secret"
+          id="pin"
+          label="PIN"
           variant="outlined"
           fullWidth
           multiline
         />
 
         <Button variant="contained" type="submit">
-          Enviar
+          Login
         </Button>
       </FormControl>
+
+      <Typography>
+        As credenciais são armazenadas no navegador, ao recarregar a página será
+        necessário logar novamente.
+      </Typography>
     </Stack>
   );
 }

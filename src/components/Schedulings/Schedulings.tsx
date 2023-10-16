@@ -22,9 +22,12 @@ export default function Schedulings() {
         Agendamentos são salvos em um banco sqlite;
         <br />A listagem só é atualizada ao recarregar a página.
       </Typography>
-      {schedulings.map((scheduling: any) => (
+      {schedulings.length === 0 && (
+        <Typography>Nenhum agendamento encontrado.</Typography>
+      )}
+      {schedulings.map((scheduling: any, index: number) => (
         <Stack
-          key={scheduling.targetDate}
+          key={index}
           flexDirection={"column"}
           sx={{
             border: "1px solid",

@@ -10,8 +10,6 @@ export async function POST(request: Request) {
     reply: string,
     media: string | File,
     scheduleId: number,
-    appKey: string,
-    appSecret: string,
     accessToken: string,
     accessSecret: string
   ) {
@@ -20,8 +18,6 @@ export async function POST(request: Request) {
         text,
         reply,
         media,
-        appKey,
-        appSecret,
         accessToken,
         accessSecret
       );
@@ -75,8 +71,6 @@ export async function POST(request: Request) {
     const reply = data.get("reply") as string;
     const media = data.get("media") as File | string;
     const unixString = data.get("unixTime") as string;
-    const appKey = data.get("appKey") as string;
-    const appSecret = data.get("appSecret") as string;
     const accessToken = data.get("accessToken") as string;
     const accessSecret = data.get("accessSecret") as string;
     const accountUsername = data.get("accountUsername") as string;
@@ -125,8 +119,6 @@ export async function POST(request: Request) {
         reply,
         media,
         schedule.id,
-        appKey,
-        appSecret,
         accessToken,
         accessSecret
       );

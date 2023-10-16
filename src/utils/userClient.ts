@@ -1,11 +1,8 @@
 import { TwitterApi } from "twitter-api-v2";
 
-function generateTwitterClient(
-  appKey: string,
-  appSecret: string,
-  accessToken: string,
-  accessSecret: string
-) {
+function generateTwitterClient(accessToken: string, accessSecret: string) {
+  const appKey = "ELKfvLQQkZyj1fCLo7oEA06bu";
+  const appSecret = "TNAmHnXktCVjBJUzn8pHQJO0tH0TwLZcy02fuBHrVZ1buVVNtD";
   const client = new TwitterApi({
     appKey: appKey,
     appSecret: appSecret,
@@ -18,4 +15,16 @@ function generateTwitterClient(
   return twitterClient;
 }
 
-export { generateTwitterClient };
+function generateCallbackClient() {
+  const appKey = "ELKfvLQQkZyj1fCLo7oEA06bu";
+  const appSecret = "TNAmHnXktCVjBJUzn8pHQJO0tH0TwLZcy02fuBHrVZ1buVVNtD";
+
+  const client = new TwitterApi({
+    appKey: appKey,
+    appSecret: appSecret,
+  });
+
+  return client;
+}
+
+export { generateTwitterClient, generateCallbackClient };

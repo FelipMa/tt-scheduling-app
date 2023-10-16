@@ -9,16 +9,12 @@ import "react-toastify/dist/ReactToastify.css";
 import axios from "axios";
 import Login from "@/components/Login/Login";
 interface ClientCredentials {
-  appKey: string;
-  appSecret: string;
   accessToken: string;
   accessSecret: string;
 }
 
 export default function Home() {
   const initialClientCredentials = {
-    appKey: "",
-    appSecret: "",
     accessToken: "",
     accessSecret: "",
   };
@@ -28,27 +24,54 @@ export default function Home() {
   const [accountName, setAccountName] = React.useState<string>("");
   const [accountUsername, setAccountUsername] = React.useState<string>("");
 
-  const handleLogin = async (event: any) => {
-    const toastId = toast.loading("Atualizando credenciais...");
+  const [authUrl, setAuthUrl] = React.useState<string>("");
+
+  React.useEffect(() => {
+    const toastId = toast.loading("Carregando aplicação...");
+    const generateAuthUrl = async () => {
+      try {
+        const res = await axios.get("/api/generate-auth-url");
+        setAuthUrl(res.data.authUrl.url);
+
+        const newClientCredentials = {
+          accessToken: res.data.authUrl.oauth_token,
+          accessSecret: res.data.authUrl.oauth_token_secret,
+        };
+
+        setClientCredentials(newClientCredentials);
+
+        toast.update(toastId, {
+          render: `Aplicação pronta para uso!`,
+          type: "success",
+          isLoading: false,
+          autoClose: 3000,
+          closeOnClick: true,
+          pauseOnHover: false,
+        });
+      } catch (err) {
+        toast.update(toastId, {
+          render: `Erro ao carregar aplicação`,
+          type: "error",
+          isLoading: false,
+          autoClose: 3000,
+          closeOnClick: true,
+          pauseOnHover: false,
+        });
+      }
+    };
+
+    generateAuthUrl();
+  }, []);
+
+  const handlePin = async (event: any) => {
+    const toastId = toast.loading("Autenticando usuário...");
 
     event.preventDefault();
-    const newAppKey = event.target.appKey.value;
-    const newAppSecret = event.target.appSecret.value;
-    const newAccessToken = event.target.accessToken.value;
-    const newAccessSecret = event.target.accessSecret.value;
+    const pin = event.target.pin.value;
 
-    if (
-      !newAppKey ||
-      !newAppSecret ||
-      !newAccessToken ||
-      !newAccessSecret ||
-      newAppKey === "" ||
-      newAppSecret === "" ||
-      newAccessToken === "" ||
-      newAccessSecret === ""
-    ) {
+    if (!pin || pin === "") {
       toast.update(toastId, {
-        render: "Preencha todas as credenciais de autenticação",
+        render: `PIN inválido`,
         type: "error",
         isLoading: false,
         autoClose: 3000,
@@ -58,20 +81,26 @@ export default function Home() {
       return;
     }
 
-    const newClientCredentials = {
-      appKey: newAppKey,
-      appSecret: newAppSecret,
-      accessToken: newAccessToken,
-      accessSecret: newAccessSecret,
+    const loginCredentials = {
+      accessToken: clientCredentials.accessToken,
+      accessSecret: clientCredentials.accessSecret,
+      pin: pin,
     };
 
-    setClientCredentials(newClientCredentials);
-
     try {
-      const res = await axios.post("/api/login", newClientCredentials);
+      const loginRes = await axios.post("/api/login", loginCredentials);
 
-      const name = res.data.data.name;
-      const username = res.data.data.username;
+      const newClientCredentials = {
+        accessToken: loginRes.data.accessToken,
+        accessSecret: loginRes.data.accessSecret,
+      };
+
+      setClientCredentials(newClientCredentials);
+
+      const getMeRes = await axios.post("/api/me", newClientCredentials);
+
+      const name = getMeRes.data.data.name;
+      const username = getMeRes.data.data.username;
 
       setAccountName(name);
       setAccountUsername(username);
@@ -85,16 +114,18 @@ export default function Home() {
         pauseOnHover: false,
       });
     } catch (err: any) {
-      let message = "Erro ao atualizar credenciais";
+      let message = "Erro ao autenticar usuário";
 
       if (err.response && err.response.status) {
         if (err.response.status === 429) {
           message =
-            "Usuário identificado, mas não foi possível buscar seus dados pelo limite de requisições excedido (ainda pode ser possível agendar tweets)";
+            "Usuário existente, mas não foi possível buscar seus dados pelo limite de requisições excedido (ainda pode ser possível agendar tweets)";
+
+          setAccountName("Usuário não identificado");
+          setAccountUsername("Usuário não identificado");
         }
         if (err.response.status === 401) {
-          message =
-            "Erro de autenticação ao buscar informações da conta, verifique as credenciais";
+          message = "Erro de autenticação, verifique as credenciais";
         }
       }
 
@@ -120,9 +151,10 @@ export default function Home() {
         maxWidth={700}
       >
         <Login
-          handleLogin={handleLogin}
           accountName={accountName}
           accountUsername={accountUsername}
+          authUrl={authUrl}
+          handlePin={handlePin}
         />
 
         <ScheduleTweet

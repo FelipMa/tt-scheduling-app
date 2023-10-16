@@ -16,8 +16,6 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 
 interface ClientCredentials {
-  appKey: string;
-  appSecret: string;
   accessToken: string;
   accessSecret: string;
 }
@@ -169,8 +167,6 @@ export default function ScheduleTweet(props: {
     formData.append("reply", inReply);
     formData.append("media", selectedFile as Blob);
     formData.append("unixTime", unixTime as unknown as string);
-    formData.append("appKey", props.clientCredentials.appKey);
-    formData.append("appSecret", props.clientCredentials.appSecret);
     formData.append("accessToken", props.clientCredentials.accessToken);
     formData.append("accessSecret", props.clientCredentials.accessSecret);
     formData.append("accountUsername", props.accountUsername);

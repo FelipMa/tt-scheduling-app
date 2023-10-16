@@ -5,20 +5,13 @@ export default async function postTweet(
   inText: string,
   inReply: string,
   inMedia: File | string,
-  appKey: string,
-  appSecret: string,
   accessToken: string,
   accessSecret: string
 ) {
   try {
     let tweet;
 
-    const twitterClient = generateTwitterClient(
-      appKey,
-      appSecret,
-      accessToken,
-      accessSecret
-    );
+    const twitterClient = generateTwitterClient(accessToken, accessSecret);
 
     if (typeof inMedia !== "string") {
       const bytes = await inMedia.arrayBuffer();

@@ -1,14 +1,14 @@
+import getMe from "@/services/getMe";
 import { NextResponse } from "next/server";
-import loginByPin from "@/services/loginByPin";
 
 export async function POST(request: Request) {
   try {
-    console.log("POST /api/login");
+    console.log("POST /api/me");
 
     const body = await request.json();
-    const { accessToken, accessSecret, pin } = body;
+    const { accessToken, accessSecret } = body;
 
-    const response = await loginByPin(accessToken, accessSecret, pin);
+    const response = await getMe(accessToken, accessSecret);
 
     if (!response) {
       throw new Error("Internal Server Error");

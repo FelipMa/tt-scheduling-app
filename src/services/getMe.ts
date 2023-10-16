@@ -1,18 +1,8 @@
 import { generateTwitterClient } from "@/utils/userClient";
 
-export default async function getMe(
-  appKey: string,
-  appSecret: string,
-  accessToken: string,
-  accessSecret: string
-) {
+export default async function getMe(accessToken: string, accessSecret: string) {
   try {
-    const twitterClient = generateTwitterClient(
-      appKey,
-      appSecret,
-      accessToken,
-      accessSecret
-    );
+    const twitterClient = generateTwitterClient(accessToken, accessSecret);
 
     const user = await twitterClient.v2.me();
 
