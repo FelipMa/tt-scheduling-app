@@ -1,5 +1,6 @@
 import { Button, Stack, Typography } from "@mui/material";
 import * as React from "react";
+import { toast } from "react-toastify";
 
 export default function Schedulings() {
   const [schedulings, setSchedulings] = React.useState<any>([]);
@@ -7,10 +8,18 @@ export default function Schedulings() {
 
   React.useEffect(() => {
     const fetchSchedulings = async () => {
-      const response = await fetch("/api/schedulings");
-      const data = await response.json();
-      const reversedData = data.reverse();
-      setSchedulings(reversedData);
+      try {
+        const response = await fetch("/api/schedulings");
+        const data = await response.json();
+        const reversedData = data.reverse();
+        setSchedulings(reversedData);
+      } catch (err) {
+        toast.error("Erro ao carregar agendamentos.", {
+          autoClose: 3000,
+          closeOnClick: true,
+          pauseOnHover: false,
+        });
+      }
     };
 
     fetchSchedulings();

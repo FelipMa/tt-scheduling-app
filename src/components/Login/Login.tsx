@@ -56,6 +56,8 @@ export default function Login(props: {
         </Button>
       </FormControl>
 
+      <Typography variant="h6">{props.authUrl}</Typography>
+
       <Typography>
         As credenciais são armazenadas no navegador, ao recarregar a página será
         necessário logar novamente.
