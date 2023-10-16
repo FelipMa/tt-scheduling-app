@@ -66,7 +66,7 @@ export async function POST(request: Request) {
     console.info(
       `Programado para ${targetDate}, executado em ${dayjs()
         .locale("pt-br")
-        .format("DD/MM/YYYY HH:mm:ss:ssZ")}`
+        .format("DD/MM/YYYY HH:mm:ss [UTC]Z")}`
     );
   }
   try {
@@ -90,7 +90,7 @@ export async function POST(request: Request) {
 
     const targetDate = dayjs(targetUnixTime * 1000)
       .locale("pt-br")
-      .format("DD/MM/YYYY HH:mm:ss:ssZ");
+      .format("DD/MM/YYYY HH:mm:ss [UTC]Z");
 
     let textName = "Sem texto";
     if (text) {
