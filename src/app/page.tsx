@@ -31,7 +31,6 @@ export default function Home() {
     const generateAuthUrl = async () => {
       try {
         const res = await axios.get("/api/generate-auth-url");
-        console.log(res.data.authUrl.url);
         setAuthUrl(res.data.authUrl.url);
 
         const newClientCredentials = {

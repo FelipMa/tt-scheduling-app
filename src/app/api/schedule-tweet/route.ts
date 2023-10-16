@@ -61,7 +61,11 @@ export async function POST(request: Request) {
       });
     }
 
-    console.log(`Agendamento executado em ${targetDate}`);
+    console.info(
+      `Programado para ${targetDate}, executado em ${dayjs().format(
+        "DD/MM/YYYY HH:mm:ss"
+      )}`
+    );
   }
   try {
     console.log("POST /api/schedule-tweet");
