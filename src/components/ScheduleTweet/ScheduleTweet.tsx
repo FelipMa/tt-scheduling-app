@@ -185,6 +185,7 @@ export default function ScheduleTweet(props: {
         pauseOnHover: false,
       });
     } catch (err: any) {
+      console.log(err);
       const message = "Erro ao agendar tweet";
 
       toast.update(toastId, {
