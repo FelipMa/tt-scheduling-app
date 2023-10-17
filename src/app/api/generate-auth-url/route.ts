@@ -9,7 +9,7 @@ export async function GET(request: Request) {
 
     return NextResponse.json({ authUrl }, { status: 200 });
   } catch (error: any) {
-    console.log(error);
+    console.error(error);
     return NextResponse.json(
       { message: "Internal Server Error" },
       { status: 500 }
