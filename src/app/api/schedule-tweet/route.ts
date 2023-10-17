@@ -51,6 +51,13 @@ export async function POST(request: Request) {
           status: newStatus,
         },
       });
+
+      console.info(
+        `Programado para ${targetDate}, executado em ${dayjs()
+          .tz("America/Bahia")
+          .format("DD/MM/YYYY HH:mm:ss [UTC]Z")}`
+      );
+      return;
     } catch (error) {
       console.error(error);
       let newStatus = "Erro ao postar tweet";
@@ -63,13 +70,8 @@ export async function POST(request: Request) {
           status: newStatus,
         },
       });
+      return;
     }
-
-    console.info(
-      `Programado para ${targetDate}, executado em ${dayjs()
-        .tz("America/Bahia")
-        .format("DD/MM/YYYY HH:mm:ss [UTC]Z")}`
-    );
   }
   try {
     console.log("POST /api/schedule-tweet");

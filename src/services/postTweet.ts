@@ -9,9 +9,11 @@ export default async function postTweet(
   accessSecret: string
 ) {
   try {
-    let tweet;
-
     const twitterClient = generateTwitterClient(accessToken, accessSecret);
+
+    let content: any = {
+      text: inText,
+    };
 
     if (typeof inMedia !== "string") {
       const bytes = await inMedia.arrayBuffer();
@@ -31,17 +33,13 @@ export default async function postTweet(
 
       mediaIds.push(mediaId);
 
-      tweet = await twitterClient.v2.tweet({
-        text: inText,
-        media: {
-          media_ids: mediaIds,
-        },
-      });
-    } else {
-      tweet = await twitterClient.v2.tweet({
-        text: inText,
-      });
+      content = {
+        ...content,
+        media_ids: mediaIds,
+      };
     }
+
+    const tweet = await twitterClient.v2.tweet(content);
 
     if (inReply) {
       const reply = await twitterClient.v2.tweet({

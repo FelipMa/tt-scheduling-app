@@ -254,7 +254,7 @@ export default function ScheduleTweet(props: {
             label="Horário da postagem"
             value={selectedDate}
             onChange={(newValue) => setSelectedDate(newValue)}
-            format="L HH:mm"
+            format="DD/MM/YYYY HH:mm"
             ampm={false}
           />
         </LocalizationProvider>
