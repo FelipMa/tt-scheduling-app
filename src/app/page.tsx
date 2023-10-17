@@ -123,6 +123,16 @@ export default function Home() {
 
           setAccountName("Usuário não identificado");
           setAccountUsername("Usuário não identificado");
+
+          toast.update(toastId, {
+            render: message,
+            type: "warning",
+            isLoading: false,
+            autoClose: 3000,
+            closeOnClick: true,
+            pauseOnHover: false,
+          });
+          return;
         }
         if (err.response.status === 401) {
           message = "Erro de autenticação, verifique as credenciais";

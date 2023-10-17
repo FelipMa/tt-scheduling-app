@@ -185,8 +185,13 @@ export default function ScheduleTweet(props: {
         pauseOnHover: false,
       });
     } catch (err: any) {
-      console.log(err);
-      const message = "Erro ao agendar tweet";
+      let message = "Erro ao agendar tweet";
+
+      if (err.response) {
+        if (err.response.status === 413) {
+          message = "Arquivo de mídia excedeu o limite de 4.5MB";
+        }
+      }
 
       toast.update(toastId, {
         render: message,
