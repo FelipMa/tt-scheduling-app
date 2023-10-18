@@ -16,7 +16,7 @@ async function handler(req: NextRequest) {
     !accessToken ||
     !accessSecret ||
     !scheduleId ||
-    !mediaId === undefined
+    mediaId === undefined
   ) {
     return NextResponse.json(
       { message: "Missing required fields for tweet" },
