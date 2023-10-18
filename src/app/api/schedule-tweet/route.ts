@@ -4,6 +4,7 @@ import prisma from "@/lib/prisma";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
 import axios from "axios";
+import uploadMediaForTwitter from "@/services/uploadMediaForTwitter";
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
@@ -54,27 +55,40 @@ export async function POST(request: NextRequest) {
       },
     });
 
+    let mediaId = null;
+
+    if (typeof media !== "string") {
+      const id = await uploadMediaForTwitter(media, accessToken, accessSecret);
+      if (id) {
+        mediaId = id;
+      } else {
+        const errorSchedule = await prisma.schedule.delete({
+          where: {
+            id: schedule.id,
+          },
+        });
+        throw new Error("Erro ao carregar mídia");
+      }
+    }
+
     const qstashToken = process.env.QSTASH_TOKEN;
-
-    const formData = new FormData();
-
-    formData.append("text", text);
-    formData.append("reply", reply);
-    formData.append("media", media as Blob);
-    formData.append("accessToken", accessToken);
-    formData.append("accessSecret", accessSecret);
-    const scheduleId = schedule.id.toString();
-    formData.append("scheduleId", scheduleId);
 
     try {
       const res = await axios.post(
         "https://qstash.upstash.io/v2/publish/https://tt-scheduling-app.vercel.app/api/tweet-qstash",
-        formData,
+        {
+          text: text,
+          reply: reply,
+          mediaId: mediaId,
+          accessToken: accessToken,
+          accessSecret: accessSecret,
+          scheduleId: schedule.id,
+        },
         {
           headers: {
             Authorization: `Bearer ${qstashToken}`,
             "Upstash-Delay": `${timeUntilTarget}s`,
-            "Content-Type": "multipart/form-data",
+            "Content-Type": "application/json",
           },
         }
       );

@@ -1,10 +1,9 @@
-import { fileTypeFromBuffer } from "file-type";
 import { generateTwitterClient } from "@/utils/userClient";
 
 export default async function postTweet(
   inText: string,
   inReply: string,
-  inMedia: File | string,
+  inMediaId: string | null,
   accessToken: string,
   accessSecret: string
 ) {
@@ -15,23 +14,10 @@ export default async function postTweet(
       text: inText,
     };
 
-    if (typeof inMedia !== "string") {
-      const bytes = await inMedia.arrayBuffer();
-      const buffer = Buffer.from(bytes);
-
-      const inType = await fileTypeFromBuffer(buffer);
-
-      if (!inType) {
-        throw new Error("Invalid file type");
-      }
-
+    if (inMediaId) {
       let mediaIds = [];
 
-      const mediaId = await twitterClient.v1.uploadMedia(buffer, {
-        mimeType: inType.mime,
-      });
-
-      mediaIds.push(mediaId);
+      mediaIds.push(inMediaId);
 
       content = {
         ...content,

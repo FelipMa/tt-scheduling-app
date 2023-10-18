@@ -9,13 +9,8 @@ dayjs.extend(utc);
 dayjs.extend(timezone);
 
 async function handler(req: NextRequest) {
-  const data = await req.formData();
-  const scheduleId = data.get("scheduleId") as string;
-  const text = data.get("text") as string;
-  const reply = data.get("reply") as string;
-  const media = data.get("media") as File | string;
-  const accessToken = data.get("accessToken") as string;
-  const accessSecret = data.get("accessSecret") as string;
+  const body = await req.json();
+  const { text, reply, media, accessToken, accessSecret, scheduleId } = body;
   try {
     const response = await postTweet(
       text,
