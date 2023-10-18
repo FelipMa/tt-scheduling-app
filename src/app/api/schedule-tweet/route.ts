@@ -5,6 +5,7 @@ import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
 import axios from "axios";
 import uploadMediaForTwitter from "@/services/uploadMediaForTwitter";
+import postTweet from "@/services/postTweet";
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
@@ -89,6 +90,7 @@ export async function POST(request: NextRequest) {
             Authorization: `Bearer ${qstashToken}`,
             "Upstash-Delay": `${timeUntilTarget}s`,
             "Content-Type": "application/json",
+            "Upstash-Retries": "1",
           },
         }
       );

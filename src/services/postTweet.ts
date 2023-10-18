@@ -17,13 +17,13 @@ export default async function postTweet(
     if (inMediaId) {
       let mediaIds = [];
 
-      const inMediaIdInt = parseInt(inMediaId);
-
-      mediaIds.push(inMediaIdInt);
+      mediaIds.push(inMediaId);
 
       content = {
         ...content,
-        media_ids: mediaIds,
+        media: {
+          media_ids: mediaIds,
+        },
       };
     }
 
