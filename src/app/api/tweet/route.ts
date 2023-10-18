@@ -7,7 +7,7 @@ import timezone from "dayjs/plugin/timezone";
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
-export default async function POST(request: Request) {
+export async function POST(request: Request) {
   async function runSchedule(
     targetDate: string,
     text: string,
