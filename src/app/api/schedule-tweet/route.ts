@@ -79,6 +79,16 @@ export async function POST(request: Request) {
       console.log(res);
     } catch (error) {
       console.error(error);
+
+      const errorSchedule = await prisma.schedule.update({
+        where: {
+          id: schedule.id,
+        },
+        data: {
+          status: "Erro ao agendar",
+        },
+      });
+
       throw new Error("Erro ao agendar tweet");
     }
 
