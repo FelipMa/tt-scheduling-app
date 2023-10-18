@@ -15,6 +15,7 @@
     "@mui/material": "^5.14.13",
     "@mui/x-date-pickers": "^6.16.2",
     "@prisma/client": "^5.4.2",
+    "@upstash/qstash": "^2.1.8",
     "axios": "^1.5.1",
     "dayjs": "^1.11.10",
     "file-type": "^18.5.0",
