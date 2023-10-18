@@ -5,7 +5,6 @@ export async function GET(request: Request) {
   try {
     const authUrl = await getAuthCallbackUrl();
 
-    console.log("Success");
     return NextResponse.json({ authUrl }, { status: 200 });
   } catch (error: any) {
     console.error(error);

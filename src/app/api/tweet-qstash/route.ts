@@ -52,7 +52,6 @@ async function handler(req: Request) {
         .format("DD/MM/YYYY HH:mm:ss [UTC]Z")}`
     );
 
-    console.log("Success");
     return NextResponse.json(
       { message: "Agendamento executado com sucesso" },
       { status: 200 }

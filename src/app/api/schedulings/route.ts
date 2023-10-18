@@ -5,7 +5,6 @@ export async function GET(request: Request) {
   try {
     const schedulings = await prisma.schedule.findMany();
 
-    console.log("Success");
     return NextResponse.json(schedulings, { status: 200 });
   } catch (err) {
     console.error(err);

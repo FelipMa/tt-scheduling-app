@@ -1,6 +1,5 @@
 import dayjs from "dayjs";
 import { NextResponse } from "next/server";
-import postTweet from "@/services/postTweet";
 import prisma from "@/lib/prisma";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
@@ -58,7 +57,7 @@ export async function POST(request: Request) {
     const qstashToken = process.env.QSTASH_TOKEN;
 
     try {
-      const res = axios.post(
+      const res = await axios.post(
         "https://qstash.upstash.io/v2/publish/https://tt-scheduling-app.vercel.app/api/tweet-qstash",
         {
           text: text,
@@ -92,7 +91,6 @@ export async function POST(request: Request) {
       throw new Error("Erro ao agendar tweet");
     }
 
-    console.log("Success");
     return NextResponse.json(schedule, { status: 200 });
   } catch (error) {
     console.error(error);
