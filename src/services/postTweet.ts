@@ -17,9 +17,9 @@ export default async function postTweet(
     if (inMediaId) {
       let mediaIds = [];
 
-      const inMediaIdString = inMediaId.toString();
+      const inMediaIdInt = parseInt(inMediaId);
 
-      mediaIds.push(inMediaIdString);
+      mediaIds.push(inMediaIdInt);
 
       content = {
         ...content,
