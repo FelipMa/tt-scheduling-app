@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { verifySignatureEdge } from "@upstash/qstash/dist/nextjs";
 import prisma from "@/lib/prisma";
 import postTweet from "@/services/postTweet";
@@ -8,9 +8,14 @@ import timezone from "dayjs/plugin/timezone";
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
-async function handler(req: Request) {
-  const body = await req.json();
-  const { text, reply, media, accessToken, accessSecret, scheduleId } = body;
+async function handler(req: NextRequest) {
+  const data = await req.formData();
+  const scheduleId = data.get("scheduleId") as string;
+  const text = data.get("text") as string;
+  const reply = data.get("reply") as string;
+  const media = data.get("media") as File | string;
+  const accessToken = data.get("accessToken") as string;
+  const accessSecret = data.get("accessSecret") as string;
   try {
     const response = await postTweet(
       text,
@@ -23,23 +28,22 @@ async function handler(req: Request) {
     let newStatus;
 
     if (response === 429) {
-      newStatus = "Limite de requisições excedido";
+      throw new Error("Too Many Requests");
     } else if (response === 401) {
-      newStatus = "Erro de autenticação";
+      throw new Error("Unauthorized");
     } else if (response === 590) {
-      newStatus = "Texto muito longo";
+      throw new Error("Text too long");
     } else if (response === 591) {
-      newStatus =
-        "Arquivo de mídia não suportado (provavelmente é muito pesado)";
+      throw new Error("Unsupported media file (probably too heavy)");
     } else if (response === undefined) {
-      newStatus = "Erro ao postar tweet";
+      throw new Error("Internal Server Error");
     } else {
       newStatus = "Tweet postado";
     }
 
     const schedule = await prisma.schedule.update({
       where: {
-        id: scheduleId,
+        id: parseInt(scheduleId),
       },
       data: {
         status: newStatus,
@@ -56,18 +60,32 @@ async function handler(req: Request) {
       { message: "Agendamento executado com sucesso" },
       { status: 200 }
     );
-  } catch (error) {
-    console.error(error);
+  } catch (error: any) {
     let newStatus = "Erro ao postar tweet";
+
+    if (error.message === "Too Many Requests") {
+      newStatus = "Limite de requisições excedido";
+    } else if (error.message === "Unauthorized") {
+      newStatus = "Erro de autenticação";
+    } else if (error.message === "Text too long") {
+      newStatus = "Texto muito longo";
+    } else if (
+      error.message === "Unsupported media file (probably too heavy)"
+    ) {
+      newStatus =
+        "Arquivo de mídia não suportado (provavelmente é muito pesado)";
+    }
 
     await prisma.schedule.update({
       where: {
-        id: scheduleId,
+        id: parseInt(scheduleId),
       },
       data: {
         status: newStatus,
       },
     });
+
+    console.error(error);
     return NextResponse.json(
       { message: "Erro ao executar agendamento" },
       { status: 500 }

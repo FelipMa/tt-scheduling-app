@@ -1,5 +1,5 @@
 import dayjs from "dayjs";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
@@ -7,7 +7,7 @@ import axios from "axios";
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
     const data = await request.formData();
     const text = data.get("text") as string;
@@ -56,35 +56,35 @@ export async function POST(request: Request) {
 
     const qstashToken = process.env.QSTASH_TOKEN;
 
+    const formData = new FormData();
+
+    formData.append("text", text);
+    formData.append("reply", reply);
+    formData.append("media", media as Blob);
+    formData.append("accessToken", accessToken);
+    formData.append("accessSecret", accessSecret);
+    const scheduleId = schedule.id.toString();
+    formData.append("scheduleId", scheduleId);
+
     try {
       const res = await axios.post(
         "https://qstash.upstash.io/v2/publish/https://tt-scheduling-app.vercel.app/api/tweet-qstash",
-        {
-          text: text,
-          reply: reply,
-          media: media,
-          accessToken: accessToken,
-          accessSecret: accessSecret,
-          scheduleId: schedule.id,
-        },
+        formData,
         {
           headers: {
             Authorization: `Bearer ${qstashToken}`,
             "Upstash-Delay": `${timeUntilTarget}s`,
-            "Content-Type": "application/json",
+            "Content-Type": "multipart/form-data",
           },
         }
       );
-      console.log(res);
+      console.log(`${res.data}`);
     } catch (error) {
       console.error(error);
 
-      const errorSchedule = await prisma.schedule.update({
+      const errorSchedule = await prisma.schedule.delete({
         where: {
           id: schedule.id,
-        },
-        data: {
-          status: "Erro ao agendar",
         },
       });
 
