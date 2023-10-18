@@ -4,78 +4,12 @@ import postTweet from "@/services/postTweet";
 import prisma from "@/lib/prisma";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
+import axios from "axios";
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
 export async function POST(request: Request) {
-  async function runSchedule(
-    targetDate: string,
-    text: string,
-    reply: string,
-    media: string | File,
-    scheduleId: number,
-    accessToken: string,
-    accessSecret: string
-  ) {
-    try {
-      const response = await postTweet(
-        text,
-        reply,
-        media,
-        accessToken,
-        accessSecret
-      );
-
-      let newStatus;
-
-      if (response === 429) {
-        newStatus = "Limite de requisições excedido";
-      } else if (response === 401) {
-        newStatus = "Erro de autenticação";
-      } else if (response === 590) {
-        newStatus = "Texto muito longo";
-      } else if (response === 591) {
-        newStatus =
-          "Arquivo de mídia não suportado (provavelmente é muito pesado)";
-      } else if (response === undefined) {
-        newStatus = "Erro ao postar tweet";
-      } else {
-        newStatus = "Tweet postado";
-      }
-
-      await prisma.schedule.update({
-        where: {
-          id: scheduleId,
-        },
-        data: {
-          status: newStatus,
-        },
-      });
-
-      console.info(
-        `Programado para ${targetDate}, executado em ${dayjs()
-          .tz("America/Bahia")
-          .format("DD/MM/YYYY HH:mm:ss [UTC]Z")}`
-      );
-      return;
-    } catch (error) {
-      console.error(error);
-      let newStatus = "Erro ao postar tweet";
-
-      await prisma.schedule.update({
-        where: {
-          id: scheduleId,
-        },
-        data: {
-          status: newStatus,
-        },
-      });
-      return;
-    }
-  }
   try {
-    console.log("POST /api/schedule-tweet");
-
     const data = await request.formData();
     const text = data.get("text") as string;
     const reply = data.get("reply") as string;
@@ -90,7 +24,6 @@ export async function POST(request: Request) {
 
     const targetUnixTime = parseInt(unixString);
     const timeUntilTarget = targetUnixTime - unixNow;
-    const timeUntilTargetMs = timeUntilTarget * 1000;
 
     const targetDate = dayjs(targetUnixTime * 1000)
       .tz("America/Bahia")
@@ -122,23 +55,35 @@ export async function POST(request: Request) {
       },
     });
 
-    setTimeout(() => {
-      runSchedule(
-        targetDate,
-        text,
-        reply,
-        media,
-        schedule.id,
-        accessToken,
-        accessSecret
+    const qstashToken = process.env.QSTASH_TOKEN;
+
+    try {
+      const res = axios.post(
+        "https://qstash.upstash.io/v2/publish/https://tt-scheduling-app.vercel.app/api/tweet-qstash",
+        {
+          text: text,
+          reply: reply,
+          media: media,
+          accessToken: accessToken,
+          accessSecret: accessSecret,
+          scheduleId: schedule.id,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${qstashToken}`,
+            "Upstash-Delay": `${timeUntilTarget}s`,
+            "Content-Type": "application/json",
+          },
+        }
       );
-    }, timeUntilTargetMs);
+      console.log(res);
+    } catch (error) {
+      console.error(error);
+      throw new Error("Erro ao agendar tweet");
+    }
 
-    const response = {
-      targetDate,
-    };
-
-    return NextResponse.json(response, { status: 200 });
+    console.log("Success");
+    return NextResponse.json(schedule, { status: 200 });
   } catch (error) {
     console.error(error);
     return NextResponse.json(

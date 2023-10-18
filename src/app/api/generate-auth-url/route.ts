@@ -3,10 +3,9 @@ import { NextResponse } from "next/server";
 
 export async function GET(request: Request) {
   try {
-    console.log("GET /api/generate-auth-url");
-
     const authUrl = await getAuthCallbackUrl();
 
+    console.log("Success");
     return NextResponse.json({ authUrl }, { status: 200 });
   } catch (error: any) {
     console.error(error);

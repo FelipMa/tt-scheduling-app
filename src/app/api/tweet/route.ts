@@ -74,8 +74,6 @@ export async function POST(request: Request) {
     }
   }
   try {
-    console.log("POST /api/schedule-tweet");
-
     const data = await request.formData();
     const text = data.get("text") as string;
     const reply = data.get("reply") as string;
@@ -131,6 +129,7 @@ export async function POST(request: Request) {
       targetDate,
     };
 
+    console.log("Success");
     return NextResponse.json(response, { status: 200 });
   } catch (error) {
     console.error(error);

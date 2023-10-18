@@ -3,8 +3,6 @@ import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {
   try {
-    console.log("POST /api/me");
-
     const body = await request.json();
     const { accessToken, accessSecret } = body;
 
@@ -22,6 +20,7 @@ export async function POST(request: Request) {
       throw new Error("Unauthorized");
     }
 
+    console.log("Success");
     return NextResponse.json(response, { status: 200 });
   } catch (error: any) {
     if (error.message === "Too Many Requests") {

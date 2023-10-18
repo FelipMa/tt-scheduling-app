@@ -62,40 +62,6 @@ export default function ScheduleTweet(props: {
       return;
     }
 
-    const missingFields = [];
-
-    if (!inText) {
-      missingFields.push("texto");
-    }
-
-    if (!selectedFile) {
-      missingFields.push("arquivo de mídia");
-    }
-
-    if (!inReply) {
-      missingFields.push("comentário");
-    }
-
-    if (missingFields.length > 0) {
-      const confirm = window.confirm(
-        `Tem certeza que deseja agendar sem os campos: ${missingFields.join(
-          " e "
-        )}?`
-      );
-
-      if (!confirm) {
-        toast.update(toastId, {
-          render: "Tweet não agendado",
-          type: "info",
-          isLoading: false,
-          autoClose: 3000,
-          closeOnClick: true,
-          pauseOnHover: false,
-        });
-        return;
-      }
-    }
-
     if (inText.length > 280) {
       toast.update(toastId, {
         render: "Texto principal excedeu o limite de 280 caracteres",
@@ -125,40 +91,16 @@ export default function ScheduleTweet(props: {
     const unixNow = now.unix();
 
     if (unixTime) {
-      if (unixTime - unixNow < 0) {
-        const confirm = window.confirm(
-          `O tempo indicado no agendamento já passou, tem certeza que deseja agendar seu tweet? (será postado imediatamente)`
-        );
-
-        if (!confirm) {
-          toast.update(toastId, {
-            render: "Tweet não postado",
-            type: "info",
-            isLoading: false,
-            autoClose: 3000,
-            closeOnClick: true,
-            pauseOnHover: false,
-          });
-          return;
-        }
-      } else if (unixTime - unixNow < 60) {
-        const confirm = window.confirm(
-          `Tem certeza que deseja agendar seu tweet para daqui a ${
-            unixTime - unixNow
-          } segundos?`
-        );
-
-        if (!confirm) {
-          toast.update(toastId, {
-            render: "Tweet não agendado",
-            type: "info",
-            isLoading: false,
-            autoClose: 3000,
-            closeOnClick: true,
-            pauseOnHover: false,
-          });
-          return;
-        }
+      if (unixTime - unixNow < 60) {
+        toast.update(toastId, {
+          render: "Agende para pelo menos 1 minuto no futuro",
+          type: "error",
+          isLoading: false,
+          autoClose: 3000,
+          closeOnClick: true,
+          pauseOnHover: false,
+        });
+        return;
       }
     }
 
