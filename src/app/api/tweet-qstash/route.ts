@@ -11,18 +11,6 @@ dayjs.extend(timezone);
 async function handler(req: NextRequest) {
   const body = await req.json();
   const { text, reply, mediaId, accessToken, accessSecret, scheduleId } = body;
-  if (
-    !text ||
-    !accessToken ||
-    !accessSecret ||
-    !scheduleId ||
-    mediaId === undefined
-  ) {
-    return NextResponse.json(
-      { message: "Missing required fields for tweet" },
-      { status: 400 }
-    );
-  }
   try {
     const response = await postTweet(
       text,
