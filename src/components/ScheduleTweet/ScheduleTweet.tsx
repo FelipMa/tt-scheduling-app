@@ -114,71 +114,7 @@ export default function ScheduleTweet(props: {
     formData.append("accessSecret", props.clientCredentials.accessSecret);
     formData.append("accountUsername", props.accountUsername);
 
-    /*let mediaId = null;
-
-    try {
-      if (selectedFile) {
-        const mediaSize = selectedFile.size;
-        const mediaType = selectedFile.type;
-
-        const oAuth1Helper = new OAuth1Helper({
-          consumerKeys: {
-            key: process.env.NEXT_PUBLIC_APP_KEY
-              ? process.env.NEXT_PUBLIC_APP_KEY
-              : "",
-            secret: process.env.NEXT_PUBLIC_APP_SECRET
-              ? process.env.NEXT_PUBLIC_APP_SECRET
-              : "",
-          },
-        });
-
-        const oAuth1AuthInfo = oAuth1Helper.authorize(
-          {
-            url: `https://upload.twitter.com/1.1/media/upload.json?command=INIT&media_type=${mediaType}&total_bytes=${mediaSize}`,
-            method: "POST",
-          },
-          {
-            key: props.clientCredentials.accessToken,
-            secret: props.clientCredentials.accessSecret,
-          }
-        );
-
-         const initialHeaders = {
-          "Access-Control-Allow-Headers": "Authorization",
-        };
-
-        const headers = {
-          ...initialHeaders,
-          ...oAuth1Helper.toHeader(oAuth1AuthInfo),
-        };
-
-        console.log(headers);
-
-        mediaId = await axios.post(
-          `https://upload.twitter.com/1.1/media/upload.json?command=INIT&media_type=${mediaType}&total_bytes=${mediaSize}`,
-          formData,
-          {
-            headers: {
-              "x-user-agent": "tt-scheduling-app",
-            },
-          }
-        );
-
-        console.log("aq");
-        console.log(mediaId);
-      }
-    } catch (err: any) {
-      console.log(err);
-      toast.update(toastId, {
-        render: "Erro ao enviar arquivo de mídia",
-        type: "error",
-        isLoading: false,
-        autoClose: 3000,
-        closeOnClick: true,
-        pauseOnHover: false,
-      });
-      return;
-    }*/
+    // No CORS on browser
 
     try {
       const res = await axios.post("/api/schedule-tweet", formData);
