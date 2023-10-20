@@ -132,6 +132,11 @@ export default function ScheduleTweet(props: {
 
         const headers = {
           "Content-Type": "multipart/form-data",
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Methods": "GET,DELETE,PATCH,POST,PUT,OPTIONS",
+          "Access-Control-Allow-Headers":
+            "Authorization, X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Origin",
+          "x-user-agent": "tt-scheduling-app",
           ...oAuth1Helper.toHeader(oAuth1AuthInfo),
         };
 
