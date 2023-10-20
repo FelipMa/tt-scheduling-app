@@ -17,7 +17,6 @@ export default function Schedulings() {
         toast.error("Erro ao carregar agendamentos.", {
           autoClose: 3000,
           closeOnClick: true,
-          pauseOnHover: false,
         });
       }
     };
@@ -29,8 +28,7 @@ export default function Schedulings() {
     <Stack gap={2} alignItems={"flex-start"}>
       <Typography variant="h4">Últimos agendamentos:</Typography>
       <Typography>
-        Agendamentos são salvos em um banco sqlite;
-        <br />A listagem só é atualizada ao recarregar a página.
+        A listagem só é atualizada ao recarregar a página.
       </Typography>
       {schedulings.length === 0 && (
         <Typography>Nenhum agendamento encontrado.</Typography>

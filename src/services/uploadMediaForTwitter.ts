@@ -23,6 +23,9 @@ export default async function uploadMediaForTwitter(
 
     return mediaId;
   } catch (error) {
+    if ((error + "a").includes("Failed to process media")) {
+      return 591;
+    }
     console.error(error);
     return undefined;
   }

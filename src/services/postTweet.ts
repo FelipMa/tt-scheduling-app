@@ -53,10 +53,6 @@ export default async function postTweet(
       }
     }
 
-    if ((error + "a").includes("Failed to process media")) {
-      return 591;
-    }
-
     console.log(error);
     return undefined;
   }

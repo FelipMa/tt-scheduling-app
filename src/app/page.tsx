@@ -1,6 +1,6 @@
 "use client";
 
-import { Stack } from "@mui/material";
+import { Box, Stack } from "@mui/material";
 import ScheduleTweet from "@/components/ScheduleTweet/ScheduleTweet";
 import Schedulings from "@/components/Schedulings/Schedulings";
 import * as React from "react";
@@ -46,7 +46,6 @@ export default function Home() {
           isLoading: false,
           autoClose: 3000,
           closeOnClick: true,
-          pauseOnHover: false,
         });
       } catch (err) {
         toast.update(toastId, {
@@ -55,7 +54,6 @@ export default function Home() {
           isLoading: false,
           autoClose: 3000,
           closeOnClick: true,
-          pauseOnHover: false,
         });
       }
     };
@@ -69,6 +67,17 @@ export default function Home() {
     event.preventDefault();
     const pin = event.target.pin.value;
 
+    if (accountName && accountName) {
+      toast.update(toastId, {
+        render: `Usuário já autenticado, para logar como outro usuário, recarregue a página`,
+        type: "error",
+        isLoading: false,
+        autoClose: 4000,
+        closeOnClick: true,
+      });
+      return;
+    }
+
     if (!pin || pin === "") {
       toast.update(toastId, {
         render: `PIN inválido`,
@@ -76,7 +85,6 @@ export default function Home() {
         isLoading: false,
         autoClose: 3000,
         closeOnClick: true,
-        pauseOnHover: false,
       });
       return;
     }
@@ -111,7 +119,6 @@ export default function Home() {
         isLoading: false,
         autoClose: 3000,
         closeOnClick: true,
-        pauseOnHover: false,
       });
     } catch (err: any) {
       let message = "Erro ao autenticar usuário";
@@ -128,9 +135,8 @@ export default function Home() {
             render: message,
             type: "warning",
             isLoading: false,
-            autoClose: 3000,
+            autoClose: 6000,
             closeOnClick: true,
-            pauseOnHover: false,
           });
           return;
         }
@@ -145,7 +151,6 @@ export default function Home() {
         isLoading: false,
         autoClose: 3000,
         closeOnClick: true,
-        pauseOnHover: false,
       });
       return;
     }
@@ -153,27 +158,37 @@ export default function Home() {
 
   return (
     <>
-      <Stack
-        component={"main"}
-        paddingY={3}
-        paddingX={6}
-        gap={7}
-        maxWidth={700}
-      >
-        <Login
-          accountName={accountName}
-          accountUsername={accountUsername}
-          authUrl={authUrl}
-          handlePin={handlePin}
-        />
+      <Stack component={"main"} paddingY={4} paddingX={8} alignItems={"center"}>
+        <Stack gap={7} maxWidth={1000}>
+          <Login
+            accountName={accountName}
+            accountUsername={accountUsername}
+            authUrl={authUrl}
+            handlePin={handlePin}
+          />
 
-        <ScheduleTweet
-          clientCredentials={clientCredentials}
-          accountName={accountName}
-          accountUsername={accountUsername}
-        />
+          <Box
+            sx={{
+              backgroundColor: "#808080",
+              height: "1px",
+            }}
+          />
 
-        <Schedulings />
+          <ScheduleTweet
+            clientCredentials={clientCredentials}
+            accountName={accountName}
+            accountUsername={accountUsername}
+          />
+
+          <Box
+            sx={{
+              backgroundColor: "#808080",
+              height: "1px",
+            }}
+          />
+
+          <Schedulings />
+        </Stack>
       </Stack>
       <ToastContainer />
     </>

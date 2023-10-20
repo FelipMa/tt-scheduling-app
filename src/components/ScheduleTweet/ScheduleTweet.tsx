@@ -14,7 +14,6 @@ import dayjs, { Dayjs } from "dayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
-import OAuth1Helper from "@/utils/OAuth1Helper";
 
 interface ClientCredentials {
   accessToken: string;
@@ -32,8 +31,9 @@ export default function ScheduleTweet(props: {
   );
 
   const handleSubmit = async (event: any) => {
-    const toastId = toast.loading("Agendando tweet...");
     event.preventDefault();
+
+    const toastId = toast.loading("Agendando tweet...");
 
     if (!props.accountName || !props.accountUsername) {
       toast.update(toastId, {
@@ -42,7 +42,6 @@ export default function ScheduleTweet(props: {
         isLoading: false,
         autoClose: 3000,
         closeOnClick: true,
-        pauseOnHover: false,
       });
       return;
     }
@@ -58,7 +57,6 @@ export default function ScheduleTweet(props: {
         isLoading: false,
         autoClose: 3000,
         closeOnClick: true,
-        pauseOnHover: false,
       });
       return;
     }
@@ -70,7 +68,6 @@ export default function ScheduleTweet(props: {
         isLoading: false,
         autoClose: 3000,
         closeOnClick: true,
-        pauseOnHover: false,
       });
       return;
     }
@@ -82,78 +79,122 @@ export default function ScheduleTweet(props: {
         isLoading: false,
         autoClose: 3000,
         closeOnClick: true,
-        pauseOnHover: false,
       });
       return;
-    }
-
-    const unixTime = selectedDate?.unix();
-    const now = dayjs(Date.now());
-    const unixNow = now.unix();
-
-    if (unixTime) {
-      if (unixTime - unixNow < 60) {
-        toast.update(toastId, {
-          render: "Agende para pelo menos 1 minuto no futuro",
-          type: "error",
-          isLoading: false,
-          autoClose: 3000,
-          closeOnClick: true,
-          pauseOnHover: false,
-        });
-        return;
-      }
     }
 
     const formData = new FormData();
     formData.append("text", inText);
     formData.append("reply", inReply);
     formData.append("media", selectedFile as Blob);
-    formData.append("unixTime", unixTime as unknown as string);
     formData.append("accessToken", props.clientCredentials.accessToken);
     formData.append("accessSecret", props.clientCredentials.accessSecret);
     formData.append("accountUsername", props.accountUsername);
 
-    // No CORS on browser
+    if (event.nativeEvent.submitter.value === "schedule") {
+      const unixTime = selectedDate?.unix();
+      const now = dayjs(Date.now());
+      const unixNow = now.unix();
 
-    try {
-      const res = await axios.post("/api/schedule-tweet", formData);
-
-      const message = `Tweet de ${props.accountName} agendado para ${res.data.targetDate}`;
-
-      toast.update(toastId, {
-        render: message,
-        type: "success",
-        isLoading: false,
-        autoClose: 5000,
-        closeOnClick: true,
-        pauseOnHover: false,
-      });
-    } catch (err: any) {
-      let message = "Erro ao agendar tweet";
-
-      if (err.response) {
-        if (err.response.status === 413) {
-          message = "Arquivo de mídia excedeu o limite de 4.5MB";
+      if (unixTime) {
+        if (unixTime - unixNow < 60) {
+          toast.update(toastId, {
+            render: "Agende para pelo menos 1 minuto no futuro",
+            type: "error",
+            isLoading: false,
+            autoClose: 3000,
+            closeOnClick: true,
+          });
+          return;
         }
       }
 
+      formData.append("unixTime", unixTime as unknown as string);
+
+      // No CORS on browser, so we can not upload files to the server directly
+
+      try {
+        const res = await axios.post("/api/schedule-tweet", formData);
+
+        const message = `Tweet agendado para ${res.data.targetDate}`;
+
+        toast.update(toastId, {
+          render: message,
+          type: "success",
+          isLoading: false,
+          autoClose: 5000,
+          closeOnClick: true,
+        });
+      } catch (err: any) {
+        let message = "Erro ao agendar tweet";
+
+        if (err.response) {
+          if (err.response.status === 413) {
+            message = "Arquivo de mídia excedeu o limite de 4.5MB";
+          }
+        }
+
+        toast.update(toastId, {
+          render: message,
+          type: "error",
+          isLoading: false,
+          autoClose: 5000,
+          closeOnClick: true,
+        });
+      }
+    } else if (event.nativeEvent.submitter.value === "now") {
+      try {
+        const res = await axios.post("/api/tweet", formData);
+
+        const message = `Tweet postado`;
+
+        toast.update(toastId, {
+          render: message,
+          type: "success",
+          isLoading: false,
+          autoClose: 3000,
+          closeOnClick: true,
+        });
+      } catch (err: any) {
+        let message = "Erro ao postar tweet";
+
+        if (err.response) {
+          if (err.response.status === 413) {
+            message = "Arquivo de mídia excedeu o limite de 4.5MB";
+          } else if (err.response.status === 429) {
+            message = "Limite de requisições excedido";
+          } else if (err.response.status === 401) {
+            message = "Erro de autenticação";
+          } else if (err.response.status === 590) {
+            message = "Texto muito longo";
+          } else if (err.response.status === 591) {
+            message =
+              "Arquivo de mídia não suportado (provavelmente muito pesado)";
+          }
+        }
+
+        toast.update(toastId, {
+          render: message,
+          type: "error",
+          isLoading: false,
+          autoClose: 5000,
+          closeOnClick: true,
+        });
+      }
+    } else {
       toast.update(toastId, {
-        render: message,
+        render: "Erro ao agendar tweet",
         type: "error",
         isLoading: false,
         autoClose: 5000,
         closeOnClick: true,
-        pauseOnHover: false,
       });
     }
   };
 
   return (
     <Stack gap={2}>
-      <Typography variant="h4">
-        Faça o agendamento de um tweet com um arquivo de mídia e/ou comentário:
-      </Typography>
+      <Typography variant="h4">Faça o agendamento de um tweet:</Typography>
       <FormControl
         component={"form"}
         onSubmit={handleSubmit}
@@ -173,14 +214,20 @@ export default function ScheduleTweet(props: {
           rows={4}
         />
 
-        <Stack component="label" htmlFor="media" gap={1}>
+        <Stack
+          component="label"
+          htmlFor="media"
+          gap={1}
+          flexDirection={"row"}
+          alignItems={"center"}
+        >
           <Button
             variant="contained"
             component="span"
             color="inherit"
-            sx={{ maxWidth: 208, textTransform: "none" }}
+            sx={{ textTransform: "none" }}
           >
-            Selecionar arquivo de mídia
+            Adicione um arquivo de mídia
           </Button>
           <Typography>Arquivo selecionado: {selectedFile?.name}</Typography>
         </Stack>
@@ -209,8 +256,11 @@ export default function ScheduleTweet(props: {
             ampm={false}
           />
         </LocalizationProvider>
-        <Button variant="contained" type="submit">
+        <Button variant="contained" type="submit" value="schedule">
           Agendar
+        </Button>
+        <Button variant="contained" type="submit" value="now">
+          Postar agora
         </Button>
       </FormControl>
     </Stack>

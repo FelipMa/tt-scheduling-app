@@ -14,7 +14,7 @@ export default function Login(props: {
   handlePin: (event: any) => void;
 }) {
   return (
-    <Stack gap={2} alignItems={"flex-start"} width={"100%"}>
+    <Stack gap={2}>
       <Typography variant="h4">Informações da conta:</Typography>
 
       <Typography>
@@ -29,7 +29,14 @@ export default function Login(props: {
           : ""}
       </Typography>
 
-      <Button variant="contained" href={props.authUrl} target="_blank">
+      <Button
+        variant="outlined"
+        href={props.authUrl}
+        target="_blank"
+        sx={{
+          maxWidth: 200,
+        }}
+      >
         Gerar Pin de login
       </Button>
 
@@ -49,6 +56,9 @@ export default function Login(props: {
           variant="outlined"
           fullWidth
           multiline
+          sx={{
+            maxWidth: 200,
+          }}
         />
 
         <Button variant="contained" type="submit">
