@@ -1,11 +1,7 @@
 import { TwitterApi } from "twitter-api-v2";
 
-const appKey = process.env.NEXT_PUBLIC_APP_KEY
-  ? process.env.NEXT_PUBLIC_APP_KEY
-  : "";
-const appSecret = process.env.NEXT_PUBLIC_APP_SECRET
-  ? process.env.NEXT_PUBLIC_APP_SECRET
-  : "";
+const appKey = process.env.APP_KEY ? process.env.APP_KEY : "";
+const appSecret = process.env.APP_SECRET ? process.env.APP_SECRET : "";
 
 function generateTwitterClient(accessToken: string, accessSecret: string) {
   const client = new TwitterApi({
