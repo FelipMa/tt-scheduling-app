@@ -105,7 +105,16 @@ export default function ScheduleTweet(props: {
       }
     }
 
-    let mediaId = null;
+    const formData = new FormData();
+    formData.append("text", inText);
+    formData.append("reply", inReply);
+    formData.append("media", selectedFile as Blob);
+    formData.append("unixTime", unixTime as unknown as string);
+    formData.append("accessToken", props.clientCredentials.accessToken);
+    formData.append("accessSecret", props.clientCredentials.accessSecret);
+    formData.append("accountUsername", props.accountUsername);
+
+    /*let mediaId = null;
 
     try {
       if (selectedFile) {
@@ -114,8 +123,12 @@ export default function ScheduleTweet(props: {
 
         const oAuth1Helper = new OAuth1Helper({
           consumerKeys: {
-            key: process.env.APP_KEY ? process.env.APP_KEY : "",
-            secret: process.env.APP_SECRET ? process.env.APP_SECRET : "",
+            key: process.env.NEXT_PUBLIC_APP_KEY
+              ? process.env.NEXT_PUBLIC_APP_KEY
+              : "",
+            secret: process.env.NEXT_PUBLIC_APP_SECRET
+              ? process.env.NEXT_PUBLIC_APP_SECRET
+              : "",
           },
         });
 
@@ -130,21 +143,24 @@ export default function ScheduleTweet(props: {
           }
         );
 
+         const initialHeaders = {
+          "Access-Control-Allow-Headers": "Authorization",
+        };
+
         const headers = {
-          "Content-Type": "multipart/form-data",
-          "Access-Control-Allow-Origin": "*",
-          "Access-Control-Allow-Methods": "GET,DELETE,PATCH,POST,PUT,OPTIONS",
-          "Access-Control-Allow-Headers":
-            "Authorization, X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Origin",
-          "x-user-agent": "tt-scheduling-app",
+          ...initialHeaders,
           ...oAuth1Helper.toHeader(oAuth1AuthInfo),
         };
 
+        console.log(headers);
+
         mediaId = await axios.post(
           `https://upload.twitter.com/1.1/media/upload.json?command=INIT&media_type=${mediaType}&total_bytes=${mediaSize}`,
-          null,
+          formData,
           {
-            headers: headers,
+            headers: {
+              "x-user-agent": "tt-scheduling-app",
+            },
           }
         );
 
@@ -162,16 +178,7 @@ export default function ScheduleTweet(props: {
         pauseOnHover: false,
       });
       return;
-    }
-
-    const formData = new FormData();
-    formData.append("text", inText);
-    formData.append("reply", inReply);
-    formData.append("media", selectedFile as Blob);
-    formData.append("unixTime", unixTime as unknown as string);
-    formData.append("accessToken", props.clientCredentials.accessToken);
-    formData.append("accessSecret", props.clientCredentials.accessSecret);
-    formData.append("accountUsername", props.accountUsername);
+    }*/
 
     try {
       const res = await axios.post("/api/schedule-tweet", formData);
