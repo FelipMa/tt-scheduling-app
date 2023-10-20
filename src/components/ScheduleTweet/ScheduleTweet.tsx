@@ -89,7 +89,6 @@ export default function ScheduleTweet(props: {
     formData.append("media", selectedFile as Blob);
     formData.append("accessToken", props.clientCredentials.accessToken);
     formData.append("accessSecret", props.clientCredentials.accessSecret);
-    formData.append("accountUsername", props.accountUsername);
 
     if (event.nativeEvent.submitter.value === "schedule") {
       const unixTime = selectedDate?.unix();
@@ -110,6 +109,7 @@ export default function ScheduleTweet(props: {
       }
 
       formData.append("unixTime", unixTime as unknown as string);
+      formData.append("accountUsername", props.accountUsername);
 
       // No CORS on browser, so we can not upload files to the server directly
 
@@ -247,6 +247,7 @@ export default function ScheduleTweet(props: {
           multiline
           rows={4}
         />
+
         <LocalizationProvider dateAdapter={AdapterDayjs}>
           <DateTimePicker
             label="Horário da postagem"
@@ -256,12 +257,20 @@ export default function ScheduleTweet(props: {
             ampm={false}
           />
         </LocalizationProvider>
-        <Button variant="contained" type="submit" value="schedule">
-          Agendar
-        </Button>
-        <Button variant="contained" type="submit" value="now">
-          Postar agora
-        </Button>
+
+        <Stack
+          flexDirection={"row"}
+          justifyContent={"space-between"}
+          width={"100%"}
+        >
+          <Button variant="contained" type="submit" value="schedule">
+            Agendar
+          </Button>
+
+          <Button variant="contained" type="submit" value="now">
+            Postar agora
+          </Button>
+        </Stack>
       </FormControl>
     </Stack>
   );

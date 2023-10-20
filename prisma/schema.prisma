@@ -14,9 +14,6 @@ datasource db {
 model Schedule {
   id              Int    @id @default(autoincrement())
   targetDate      String
-  text            String
-  reply           String
-  media           String
   accountUsername String
   status          String
 }

@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import dayjs from "dayjs";
 import postTweet from "@/services/postTweet";
-import prisma from "@/lib/prisma";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
 import uploadMediaForTwitter from "@/services/uploadMediaForTwitter";
@@ -16,7 +15,6 @@ export async function POST(request: NextRequest) {
     const media = data.get("media") as File | string;
     const accessToken = data.get("accessToken") as string;
     const accessSecret = data.get("accessSecret") as string;
-    const accountUsername = data.get("accountUsername") as string;
 
     let textName = "Sem texto";
     if (text) {
@@ -69,18 +67,7 @@ export async function POST(request: NextRequest) {
       throw new Error("Internal Server Error");
     }
 
-    const schedule = await prisma.schedule.create({
-      data: {
-        targetDate: targetDate,
-        text: textName,
-        reply: replyName,
-        media: mediaName,
-        accountUsername: accountUsername,
-        status: "Tweet postado",
-      },
-    });
-
-    return NextResponse.json(schedule, { status: 200 });
+    return NextResponse.json(response, { status: 200 });
   } catch (error: any) {
     if (error.message === "Too Many Requests") {
       return NextResponse.json(

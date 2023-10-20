@@ -47,9 +47,6 @@ export async function POST(request: NextRequest) {
     const schedule = await prisma.schedule.create({
       data: {
         targetDate: targetDate,
-        text: textName,
-        reply: replyName,
-        media: mediaName,
         accountUsername: accountUsername,
         status: "Agendado",
       },
