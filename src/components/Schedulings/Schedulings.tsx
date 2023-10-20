@@ -64,7 +64,7 @@ export default function Schedulings() {
           Carregar mais
         </Button>
       )}
-      {schedulings ||
+      {schedulings.length !== 0 ||
         (schedulings.length <= cards && (
           <Typography>Não há mais agendamentos.</Typography>
         ))}
