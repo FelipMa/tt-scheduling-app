@@ -5,7 +5,6 @@ import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
 import axios from "axios";
 import uploadMediaForTwitter from "@/services/uploadMediaForTwitter";
-import postTweet from "@/services/postTweet";
 dayjs.extend(utc);
 dayjs.extend(timezone);
 

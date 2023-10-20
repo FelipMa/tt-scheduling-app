@@ -14,6 +14,7 @@ import dayjs, { Dayjs } from "dayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
+import OAuth1Helper from "@/utils/OAuth1Helper";
 
 interface ClientCredentials {
   accessToken: string;
@@ -102,6 +103,60 @@ export default function ScheduleTweet(props: {
         });
         return;
       }
+    }
+
+    let mediaId = null;
+
+    try {
+      if (selectedFile) {
+        const mediaSize = selectedFile.size;
+        const mediaType = selectedFile.type;
+
+        const oAuth1Helper = new OAuth1Helper({
+          consumerKeys: {
+            key: process.env.APP_KEY ? process.env.APP_KEY : "",
+            secret: process.env.APP_SECRET ? process.env.APP_SECRET : "",
+          },
+        });
+
+        const oAuth1AuthInfo = oAuth1Helper.authorize(
+          {
+            url: `https://upload.twitter.com/1.1/media/upload.json?command=INIT&media_type=${mediaType}&total_bytes=${mediaSize}`,
+            method: "POST",
+          },
+          {
+            key: props.clientCredentials.accessToken,
+            secret: props.clientCredentials.accessSecret,
+          }
+        );
+
+        const headers = {
+          "Content-Type": "multipart/form-data",
+          ...oAuth1Helper.toHeader(oAuth1AuthInfo),
+        };
+
+        mediaId = await axios.post(
+          `https://upload.twitter.com/1.1/media/upload.json?command=INIT&media_type=${mediaType}&total_bytes=${mediaSize}`,
+          null,
+          {
+            headers: headers,
+          }
+        );
+
+        console.log("aq");
+        console.log(mediaId);
+      }
+    } catch (err: any) {
+      console.log(err);
+      toast.update(toastId, {
+        render: "Erro ao enviar arquivo de mídia",
+        type: "error",
+        isLoading: false,
+        autoClose: 3000,
+        closeOnClick: true,
+        pauseOnHover: false,
+      });
+      return;
     }
 
     const formData = new FormData();
