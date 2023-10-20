@@ -30,9 +30,6 @@ async function handler(req: NextRequest) {
       newStatus = "Erro de autenticação";
     } else if (response === 590) {
       newStatus = "Texto muito longo";
-    } else if (response === 591) {
-      newStatus =
-        "Arquivo de mídia não suportado (provavelmente é muito pesado)";
     } else if (response === undefined) {
       newStatus = "Erro ao postar tweet";
     } else {
@@ -54,8 +51,6 @@ async function handler(req: NextRequest) {
       throw new Error("Unauthorized");
     } else if (response === 590) {
       throw new Error("Text too long");
-    } else if (response === 591) {
-      throw new Error("Unsupported media file (probably too heavy)");
     } else if (response === undefined) {
       throw new Error("Internal Server Error");
     }
@@ -77,13 +72,6 @@ async function handler(req: NextRequest) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     } else if (error.message === "Text too long") {
       return NextResponse.json({ message: "Text too long" }, { status: 590 });
-    } else if (
-      error.message === "Unsupported media file (probably too heavy)"
-    ) {
-      return NextResponse.json(
-        { message: "Unsupported media file (probably too heavy)" },
-        { status: 591 }
-      );
     }
 
     console.error(error);

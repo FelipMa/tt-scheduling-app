@@ -65,8 +65,6 @@ export async function POST(request: NextRequest) {
       throw new Error("Unauthorized");
     } else if (response === 590) {
       throw new Error("Text too long");
-    } else if (response === 591) {
-      throw new Error("Unsupported media file (probably too heavy)");
     } else if (response === undefined) {
       throw new Error("Internal Server Error");
     }
