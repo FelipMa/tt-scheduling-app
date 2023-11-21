@@ -1,6 +1,6 @@
 "use client";
 
-import { Box, Stack } from "@mui/material";
+import { Box, Stack, Typography } from "@mui/material";
 import ScheduleTweet from "@/components/ScheduleTweet/ScheduleTweet";
 import Schedulings from "@/components/Schedulings/Schedulings";
 import * as React from "react";
@@ -160,6 +160,18 @@ export default function Home() {
     <>
       <Stack component={"main"} paddingY={4} paddingX={8} alignItems={"center"}>
         <Stack gap={7} maxWidth={1000}>
+          <Stack>
+            <Typography variant={"h3"}>tt-scheduling-app</Typography>
+            <Typography variant={"h5"}>Agendador de tweets</Typography>
+          </Stack>
+
+          <Box
+            sx={{
+              backgroundColor: "#808080",
+              height: "1px",
+            }}
+          />
+
           <Login
             accountName={accountName}
             accountUsername={accountUsername}

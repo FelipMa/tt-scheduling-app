@@ -1,8 +1,16 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# tt-scheduling-app
 
 The purpose of this project is to create a simple tweet scheduler that can be used to schedule tweets.
 
-## Getting Started
+## About the code
+
+This project is built using Next.js and the communication with the Twitter API is done using Next.js serverless functions.
+
+The UI is built using Material UI.
+
+The scheduling is done using QStash, an HTTP based messaging and scheduling solution for the serverless and edge runtimes.
+
+## Running locally
 
 First, run the development server:
 

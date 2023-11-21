@@ -5,6 +5,7 @@ import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
 import axios from "axios";
 import uploadMediaForTwitter from "@/services/uploadMediaForTwitter";
+import maskString from "@/utils/maskString";
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
@@ -47,7 +48,7 @@ export async function POST(request: NextRequest) {
     const schedule = await prisma.schedule.create({
       data: {
         targetDate: targetDate,
-        accountUsername: accountUsername,
+        accountUsername: maskString(accountUsername),
         status: "Agendado",
       },
     });
