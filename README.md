@@ -2,6 +2,8 @@
 
 The purpose of this project is to create a simple tweet scheduler that can be used to schedule tweets.
 
+Check it out at [tt-scheduling-app.vercel.app](https://tt-scheduling-app.vercel.app/).
+
 ## About the code
 
 This project is built using Next.js and the communication with the Twitter API is done using Next.js serverless functions.
